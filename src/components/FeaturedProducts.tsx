@@ -19,12 +19,18 @@ const FeaturedProducts: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.map((product) => (
             <Link to={`/products/${product.id}`} key={product.id} className="marble-card group">
-              <div className="h-64 overflow-hidden">
+              <div className="h-64 overflow-hidden relative">
                 <img
                   src={product.image}
                   alt={product.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  loading="lazy"
                 />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                  <span className="text-xs font-medium text-white">
+                    {product.origin}
+                  </span>
+                </div>
               </div>
               <div className="p-4">
                 <span className="text-sm text-gold-dark font-medium">

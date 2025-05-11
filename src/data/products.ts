@@ -11,7 +11,7 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?q=80&w=800&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1618220370223-3e8c7dc04aad?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Statuario Marble is a luxurious white Italian marble characterized by dramatic gray veining that creates a bold, distinctive look. Its pristine white background provides a perfect canvas for the elegant veins, making it a timeless choice for upscale interior applications.",
@@ -51,8 +51,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1599619350702-30761da3f83a?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1599619350702-30761da3f83a?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1599619351208-3e6c839d6828?q=80&w=800&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1617975178295-4aff353a4296?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Makrana White Marble, sourced from the renowned quarries of Rajasthan, is famous for its pure white background and subtle, delicate veining. This is the same marble used in the construction of the Taj Mahal, showcasing its timeless beauty and historical significance.",
     specifications: {
@@ -92,7 +92,7 @@ export const products: Product[] = [
     gallery: [
       "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=800&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1614159102522-381a3100b4bb?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1614159102500-23508d71fcf2?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Black Galaxy Granite is a premium black granite with distinctive gold/bronze flecks that resemble stars in a night sky. Quarried in Andhra Pradesh, India, this striking natural stone offers both visual appeal and exceptional durability.",
     specifications: {
@@ -131,8 +131,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1574115289253-eea2a0a3d10f?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1574115289253-eea2a0a3d10f?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1606744837616-56c9a5c6a6eb?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1532323544230-7191fd51bc1b?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1581922814484-0b48460b7010?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Calacatta Gold Marble is one of the most luxurious and sought-after Italian marbles, characterized by a pristine white background with dramatic, bold veining in gold and gray tones. This exquisite stone is quarried from the mountains of Carrara, Italy.",
     specifications: {
@@ -171,8 +171,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1614159102522-381a3100b4bb?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1614159102522-381a3100b4bb?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1580991584164-a4e12c31521d?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1589033358804-4820d4799f19?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Ruby Red Granite is a vibrant and striking natural stone with a deep red background and black mineral deposits throughout. Quarried in Norway, this granite offers a unique color that stands out in any application, combining visual impact with exceptional durability.",
     specifications: {
@@ -210,8 +210,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1617975178295-4aff353a4296?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1604077137850-c6d2e2a66966?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Verde Guatemala Marble is an exotic green marble with striking white and black veining patterns that create a forest-like appearance. This unique natural stone offers a touch of nature-inspired luxury to spaces seeking a distinctive character.",
     specifications: {
@@ -249,8 +249,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1618220370223-3e8c7dc04aad?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1618220370223-3e8c7dc04aad?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1618220370223-3e8c7dc04aad?q=80&w=800&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "https://images.unsplash.com/photo-1599619352689-c44d26aa9b93?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1579271723124-a0a1a4c1b3a5?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Emperador Dark Marble from Spain offers a rich, chocolate brown background with lighter veining, creating a warm, sophisticated aesthetic. This versatile marble adds depth and character to any space, making it particularly popular for elegant, traditional environments.",
     specifications: {
@@ -288,8 +288,8 @@ export const products: Product[] = [
     image: "https://images.unsplash.com/photo-1614159102500-23508d71fcf2?q=80&w=500&auto=format&fit=crop",
     gallery: [
       "https://images.unsplash.com/photo-1614159102500-23508d71fcf2?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=800&auto=format&fit=crop",
-      "https://images.unsplash.com/photo-1614159102522-381a3100b4bb?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1616108738832-22aec6836325?q=80&w=800&auto=format&fit=crop",
     ],
     description: "Absolute Black Granite, quarried in Zimbabwe, is renowned for its consistent, pure black coloring with virtually no visible grains or patterns. This elegant, uniform appearance makes it one of the most versatile and popular granite options available, providing a timeless backdrop for any design scheme.",
     specifications: {
@@ -325,6 +325,11 @@ export const products: Product[] = [
     subCategory: "Italian Marble",
     origin: "Italy",
     image: "https://images.unsplash.com/photo-1596731498067-13ae669a3fb3?q=80&w=500&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1596731498067-13ae669a3fb3?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1596731498064-e4b79bd35e4d?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1579271722639-7c25d40f393b?q=80&w=800&auto=format&fit=crop",
+    ],
     description: "Botticino Classico is a fine-grained beige marble quarried in northern Italy, featuring subtle beige tones and delicate veining. Its warm, neutral color makes it exceptionally versatile and timeless for a wide range of applications.",
     specifications: {
       color: "Warm beige with subtle veining",
@@ -359,6 +364,11 @@ export const products: Product[] = [
     subCategory: "Indian Granite",
     origin: "India",
     image: "https://images.unsplash.com/photo-1618221195706-ec3fb2a15f34?q=80&w=500&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1618221195706-ec3fb2a15f34?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1584726468258-177daa29ca78?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1581982581239-d92d82992dba?q=80&w=800&auto=format&fit=crop",
+    ],
     description: "Tan Brown granite from India features a rich brown background dotted with darker brown and black mineral deposits, creating a distinctive, earthy appearance. Its natural warmth and exceptional durability make it a practical yet beautiful choice.",
     specifications: {
       color: "Brown with black and caramel flecks",
@@ -393,6 +403,11 @@ export const products: Product[] = [
     subCategory: "Imported Marble",
     origin: "India",
     image: "https://images.unsplash.com/photo-1617975179012-14387731c886?q=80&w=500&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1617975179012-14387731c886?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1617975147774-ca80bb7f4c19?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1600800578830-5093764bc3f3?q=80&w=800&auto=format&fit=crop",
+    ],
     description: "Rain Forest Green Marble features dramatic forest green tones with white and darker green veining that resembles a lush forest canopy. This exotic marble creates a powerful visual impact in any space where it's installed.",
     specifications: {
       color: "Green with white and dark green veining",
@@ -427,6 +442,11 @@ export const products: Product[] = [
     subCategory: "Indian Granite",
     origin: "India",
     image: "https://images.unsplash.com/photo-1617975178295-4aff353a4296?q=80&w=500&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1617975178295-4aff353a4296?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1617975147442-c2648cf4ecae?q=80&w=800&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1579271723251-5515844a05a9?q=80&w=800&auto=format&fit=crop",
+    ],
     description: "Kashmir White Granite features a light cream to white background with flecks of burgundy and gray mineral deposits. Quarried in India, this granite offers a bright, versatile aesthetic that works well with various design styles.",
     specifications: {
       color: "Off-white with burgundy and gray flecks",
