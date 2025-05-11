@@ -6,6 +6,7 @@ import { getProductById, getRelatedProducts } from "@/data/products";
 import { Product } from "@/types/product";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +25,12 @@ const ProductDetail = () => {
       }
     }
   }, [id]);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, source: string) => {
+    const target = e.target as HTMLImageElement;
+    console.log(`Image failed to load: ${source}, replacing with fallback`);
+    target.src = "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=800&auto=format&fit=crop";
+  };
 
   if (!product) {
     return (
@@ -48,6 +55,11 @@ const ProductDetail = () => {
       setActiveImageIndex(activeImageIndex - 1);
     }
   };
+
+  // Use main image if no gallery or as fallback
+  const currentImage = product.gallery && product.gallery.length > 0 
+    ? product.gallery[activeImageIndex] 
+    : product.image;
 
   return (
     <div>
@@ -79,9 +91,10 @@ const ProductDetail = () => {
             <div className="space-y-4">
               <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-lg border border-stone-200">
                 <img
-                  src={product.gallery ? product.gallery[activeImageIndex] : product.image}
+                  src={currentImage}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => handleImageError(e, currentImage)}
                 />
                 {product.gallery && product.gallery.length > 1 && (
                   <>
@@ -124,6 +137,7 @@ const ProductDetail = () => {
                         src={img}
                         alt={`${product.name} - View ${index + 1}`}
                         className="h-full w-full object-cover"
+                        onError={(e) => handleImageError(e, img)}
                       />
                     </button>
                   ))}
@@ -259,6 +273,7 @@ const ProductDetail = () => {
                       src={relatedProduct.image}
                       alt={relatedProduct.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={(e) => handleImageError(e, relatedProduct.image)}
                     />
                   </div>
                   <div className="p-4">

@@ -21,6 +21,12 @@ const Products = () => {
     Granite: ["Indian Granite", "Imported Granite"],
   };
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    console.log("Product image failed to load, replacing with fallback");
+    target.src = "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=500&auto=format&fit=crop";
+  };
+
   useEffect(() => {
     // Update URL when filters change
     const params = new URLSearchParams();
@@ -142,6 +148,7 @@ const Products = () => {
                       src={product.image}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={handleImageError}
                     />
                   </div>
                   <div className="p-4">
@@ -209,6 +216,7 @@ const Products = () => {
                       }
                       alt={subCategory}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={handleImageError}
                     />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4 group-hover:bg-black/50 transition">
                       <div className="text-center">
@@ -250,6 +258,7 @@ const Products = () => {
                       }
                       alt={subCategory}
                       className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={handleImageError}
                     />
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4 group-hover:bg-black/50 transition">
                       <div className="text-center">
