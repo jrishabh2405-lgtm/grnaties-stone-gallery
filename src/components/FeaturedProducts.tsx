@@ -11,8 +11,10 @@ const FeaturedProducts: React.FC = () => {
     const target = e.target as HTMLImageElement;
     console.log(`Image failed to load for ${productName}, replacing with fallback`);
     // Fallback image from a reliable source
-    target.src = "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=500&auto=format&fit=crop&fit=crop&w=600&h=400";
-    toast.error(`Couldn't load image for ${productName}`);
+    target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
+    toast.error(`Couldn't load image for ${productName}`, {
+      description: "Using fallback image instead"
+    });
   };
 
   return (
@@ -27,7 +29,7 @@ const FeaturedProducts: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.map((product) => (
-            <Link to={`/products/${product.id}`} key={product.id} className="marble-card group">
+            <Link to={`/products/${product.id}`} key={product.id} className="marble-card group bg-white shadow-sm hover:shadow-md transition-all">
               <div className="h-64 overflow-hidden relative">
                 <img
                   src={product.image}

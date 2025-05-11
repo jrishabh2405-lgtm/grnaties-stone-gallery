@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, Filter, CheckCircle } from "lucide-react";
 import { products } from "@/data/products";
 import { Product } from "@/types/product";
+import { toast } from "sonner";
 
 const Products = () => {
   const location = useLocation();
@@ -13,6 +13,7 @@ const Products = () => {
   const [activeCategory, setActiveCategory] = useState(queryParams.get("category") || "all");
   const [activeSubCategory, setActiveSubCategory] = useState(queryParams.get("subCategory") || "");
   const [searchTerm, setSearchTerm] = useState(queryParams.get("search") || "");
+  const [imagesLoading, setImagesLoading] = useState<Record<number, boolean>>({});
   
   const categories = ["all", "Marble", "Granite"];
   
@@ -21,10 +22,35 @@ const Products = () => {
     Granite: ["Indian Granite", "Imported Granite"],
   };
 
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+  useEffect(() => {
+    // Initialize loading state for all products
+    const initialLoadingState: Record<number, boolean> = {};
+    products.forEach(product => {
+      initialLoadingState[product.id] = true;
+    });
+    setImagesLoading(initialLoadingState);
+
+    // Preload product images
+    products.forEach(product => {
+      const img = new Image();
+      img.src = product.image;
+      img.onload = () => {
+        setImagesLoading(prev => ({ ...prev, [product.id]: false }));
+      };
+      img.onerror = () => {
+        console.error(`Failed to load image for ${product.name}`);
+        setImagesLoading(prev => ({ ...prev, [product.id]: false }));
+      };
+    });
+  }, []);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, product: Product) => {
     const target = e.target as HTMLImageElement;
-    console.log("Product image failed to load, replacing with fallback");
-    target.src = "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=500&auto=format&fit=crop";
+    console.log(`Product image failed to load for ${product.name}, replacing with fallback`);
+    toast.error(`Couldn't load image for ${product.name}`, {
+      description: "Using fallback image instead"
+    });
+    target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
   };
 
   useEffect(() => {
@@ -141,14 +167,25 @@ const Products = () => {
                 <Link 
                   to={`/products/${product.id}`} 
                   key={product.id} 
-                  className="marble-card group cursor-pointer"
+                  className="marble-card group cursor-pointer bg-white shadow-sm hover:shadow-md transition-all"
                 >
-                  <div className="h-64 overflow-hidden">
+                  <div className="h-64 overflow-hidden relative">
+                    {imagesLoading[product.id] && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-stone-100">
+                        <div className="animate-pulse flex flex-col items-center">
+                          <div className="rounded-md bg-stone-200 h-24 w-24 mb-2"></div>
+                          <span className="text-xs text-stone-400">Loading...</span>
+                        </div>
+                      </div>
+                    )}
                     <img
                       src={product.image}
                       alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      onError={handleImageError}
+                      className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${
+                        imagesLoading[product.id] ? 'opacity-0' : 'opacity-100'
+                      }`}
+                      onLoad={() => setImagesLoading(prev => ({ ...prev, [product.id]: false }))}
+                      onError={(e) => handleImageError(e, product)}
                     />
                   </div>
                   <div className="p-4">
@@ -184,7 +221,7 @@ const Products = () => {
         </div>
       </section>
 
-      {/* Collections */}
+      {/* Collections Section */}
       <section className="section-padding">
         <div className="container-custom">
           <div className="text-center mb-12">
@@ -201,41 +238,48 @@ const Products = () => {
                 Marble Collections
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {subCategories.Marble.map((subCategory) => (
-                  <div
-                    key={subCategory}
-                    className="relative h-64 group overflow-hidden rounded-lg"
-                  >
-                    <img
-                      src={
-                        subCategory === "Italian Marble"
-                          ? "https://images.unsplash.com/photo-1574115289253-eea2a0a3d10f?q=80&w=600&auto=format&fit=crop"
-                          : subCategory === "Indian Marble"
-                          ? "https://images.unsplash.com/photo-1599619350702-30761da3f83a?q=80&w=600&auto=format&fit=crop"
-                          : "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=600&auto=format&fit=crop"
-                      }
-                      alt={subCategory}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      onError={handleImageError}
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4 group-hover:bg-black/50 transition">
-                      <div className="text-center">
-                        <h4 className="text-white text-xl font-serif font-semibold mb-2">
-                          {subCategory}
-                        </h4>
-                        <button
-                          onClick={() => {
-                            handleCategoryChange("Marble");
-                            handleSubCategoryChange(subCategory);
-                          }}
-                          className="bg-white text-stone-800 hover:bg-gold-light text-sm font-medium px-4 py-2 rounded-md transition"
-                        >
-                          View Collection
-                        </button>
+                {subCategories.Marble.map((subCategory, index) => {
+                  // Get reliable image sources
+                  const imageSources = [
+                    "https://images.unsplash.com/photo-1545389054-cf76a0375ead?q=80&w=800&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1596731498067-13ae669a3fb3?q=80&w=800&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=800&auto=format&fit=crop"
+                  ];
+                  
+                  return (
+                    <div
+                      key={subCategory}
+                      className="relative h-64 group overflow-hidden rounded-lg shadow-sm"
+                    >
+                      <img
+                        src={imageSources[index]}
+                        alt={subCategory}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          console.log(`Collection image failed to load for ${subCategory}`);
+                          target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4 group-hover:bg-black/50 transition">
+                        <div className="text-center">
+                          <h4 className="text-white text-xl font-serif font-semibold mb-2">
+                            {subCategory}
+                          </h4>
+                          <button
+                            onClick={() => {
+                              handleCategoryChange("Marble");
+                              handleSubCategoryChange(subCategory);
+                            }}
+                            className="bg-white text-stone-800 hover:bg-gold-light text-sm font-medium px-4 py-2 rounded-md transition"
+                          >
+                            View Collection
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -245,46 +289,54 @@ const Products = () => {
                 Granite Collections
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {subCategories.Granite.map((subCategory) => (
-                  <div
-                    key={subCategory}
-                    className="relative h-64 group overflow-hidden rounded-lg"
-                  >
-                    <img
-                      src={
-                        subCategory === "Indian Granite"
-                          ? "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=600&auto=format&fit=crop"
-                          : "https://images.unsplash.com/photo-1614159102500-23508d71fcf2?q=80&w=600&auto=format&fit=crop"
-                      }
-                      alt={subCategory}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      onError={handleImageError}
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4 group-hover:bg-black/50 transition">
-                      <div className="text-center">
-                        <h4 className="text-white text-xl font-serif font-semibold mb-2">
-                          {subCategory}
-                        </h4>
-                        <button
-                          onClick={() => {
-                            handleCategoryChange("Granite");
-                            handleSubCategoryChange(subCategory);
-                          }}
-                          className="bg-white text-stone-800 hover:bg-gold-light text-sm font-medium px-4 py-2 rounded-md transition"
-                        >
-                          View Collection
-                        </button>
+                {subCategories.Granite.map((subCategory, index) => {
+                  // Get reliable image sources
+                  const imageSources = [
+                    "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=800&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop"
+                  ];
+                  
+                  return (
+                    <div
+                      key={subCategory}
+                      className="relative h-64 group overflow-hidden rounded-lg shadow-sm"
+                    >
+                      <img
+                        src={imageSources[index]}
+                        alt={subCategory}
+                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          console.log(`Collection image failed to load for ${subCategory}`);
+                          target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center p-4 group-hover:bg-black/50 transition">
+                        <div className="text-center">
+                          <h4 className="text-white text-xl font-serif font-semibold mb-2">
+                            {subCategory}
+                          </h4>
+                          <button
+                            onClick={() => {
+                              handleCategoryChange("Granite");
+                              handleSubCategoryChange(subCategory);
+                            }}
+                            className="bg-white text-stone-800 hover:bg-gold-light text-sm font-medium px-4 py-2 rounded-md transition"
+                          >
+                            View Collection
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Product Information */}
+      {/* Product Information Section */}
       <section className="section-padding bg-marble-light">
         <div className="container-custom">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">

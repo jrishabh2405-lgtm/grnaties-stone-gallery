@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
@@ -13,23 +12,38 @@ const ProductDetail = () => {
   const [product, setProduct] = useState<Product | undefined>(undefined);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   useEffect(() => {
     if (id) {
       const productData = getProductById(parseInt(id));
       setProduct(productData);
+      setImageLoaded(false);
       
       if (productData) {
         setRelatedProducts(getRelatedProducts(productData));
         setActiveImageIndex(0); // Reset image index when product changes
+        
+        // Preload the main image
+        const img = new Image();
+        img.src = productData.image;
+        img.onload = () => setImageLoaded(true);
+        img.onerror = () => {
+          console.error(`Failed to load main image for ${productData.name}`);
+          setImageLoaded(true); // Set as loaded anyway so the fallback can show
+        };
       }
     }
   }, [id]);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, source: string) => {
     const target = e.target as HTMLImageElement;
-    console.log(`Image failed to load: ${source}, replacing with fallback`);
-    target.src = "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=800&auto=format&fit=crop";
+    const productName = product?.name || "Unknown product";
+    console.log(`Image failed to load: ${source} for ${productName}, replacing with fallback`);
+    toast.error(`Image failed to load for ${productName}`, {
+      description: "Using fallback image instead"
+    });
+    target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
   };
 
   if (!product) {
@@ -47,12 +61,32 @@ const ProductDetail = () => {
   const handleNextImage = () => {
     if (product.gallery && activeImageIndex < product.gallery.length - 1) {
       setActiveImageIndex(activeImageIndex + 1);
+      setImageLoaded(false);
+
+      // Preload the next image
+      const img = new Image();
+      img.src = product.gallery[activeImageIndex + 1];
+      img.onload = () => setImageLoaded(true);
+      img.onerror = () => {
+        console.error(`Failed to load gallery image ${activeImageIndex + 1} for ${product.name}`);
+        setImageLoaded(true);
+      };
     }
   };
 
   const handlePrevImage = () => {
     if (activeImageIndex > 0) {
       setActiveImageIndex(activeImageIndex - 1);
+      setImageLoaded(false);
+
+      // Preload the previous image
+      const img = new Image();
+      img.src = product.gallery[activeImageIndex - 1];
+      img.onload = () => setImageLoaded(true);
+      img.onerror = () => {
+        console.error(`Failed to load gallery image ${activeImageIndex - 1} for ${product.name}`);
+        setImageLoaded(true);
+      };
     }
   };
 
@@ -89,11 +123,20 @@ const ProductDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Product Images */}
             <div className="space-y-4">
-              <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-lg border border-stone-200">
+              <div className="relative h-[400px] md:h-[500px] overflow-hidden rounded-lg border border-stone-200 bg-stone-50">
+                {!imageLoaded && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-stone-100">
+                    <div className="animate-pulse flex flex-col items-center">
+                      <div className="rounded-md bg-stone-200 h-32 w-32 mb-2"></div>
+                      <span className="text-sm text-stone-400">Loading image...</span>
+                    </div>
+                  </div>
+                )}
                 <img
                   src={currentImage}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full object-cover ${imageLoaded ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}
+                  onLoad={() => setImageLoaded(true)}
                   onError={(e) => handleImageError(e, currentImage)}
                 />
                 {product.gallery && product.gallery.length > 1 && (
@@ -266,7 +309,7 @@ const ProductDetail = () => {
                 <Link 
                   to={`/products/${relatedProduct.id}`} 
                   key={relatedProduct.id} 
-                  className="marble-card group"
+                  className="marble-card group bg-white shadow-sm hover:shadow-md transition-all"
                 >
                   <div className="h-64 overflow-hidden">
                     <img
