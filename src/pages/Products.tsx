@@ -1,97 +1,19 @@
 
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Search, Filter } from "lucide-react";
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  subCategory: string;
-  origin: string;
-  image: string;
-  description: string;
-}
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Search, Filter, CheckCircle } from "lucide-react";
+import { products } from "@/data/products";
+import { Product } from "@/types/product";
 
 const Products = () => {
-  const [activeCategory, setActiveCategory] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const products: Product[] = [
-    {
-      id: 1,
-      name: "Statuario Marble",
-      category: "Marble",
-      subCategory: "Italian Marble",
-      origin: "Italy",
-      image: "https://images.unsplash.com/photo-1533422902779-aff35862e462?q=80&w=500&auto=format&fit=crop",
-      description: "White marble with distinctive gray veins, perfect for luxurious interiors.",
-    },
-    {
-      id: 2,
-      name: "Makrana White",
-      category: "Marble",
-      subCategory: "Indian Marble",
-      origin: "India",
-      image: "https://images.unsplash.com/photo-1599619350702-30761da3f83a?q=80&w=500&auto=format&fit=crop",
-      description: "Famous white marble from Rajasthan with a fine-grained crystalline structure.",
-    },
-    {
-      id: 3,
-      name: "Black Galaxy",
-      category: "Granite",
-      subCategory: "Indian Granite",
-      origin: "India",
-      image: "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=500&auto=format&fit=crop",
-      description: "Deep black granite with gold/copper flecks, highly durable and elegant.",
-    },
-    {
-      id: 4,
-      name: "Calacatta Gold",
-      category: "Marble",
-      subCategory: "Italian Marble",
-      origin: "Italy",
-      image: "https://images.unsplash.com/photo-1574115289253-eea2a0a3d10f?q=80&w=500&auto=format&fit=crop",
-      description: "Distinctive white marble with dramatic gold veining patterns.",
-    },
-    {
-      id: 5,
-      name: "Ruby Red",
-      category: "Granite",
-      subCategory: "Imported Granite",
-      origin: "Norway",
-      image: "https://images.unsplash.com/photo-1614159102522-381a3100b4bb?q=80&w=500&auto=format&fit=crop",
-      description: "Vibrant red granite with black mineral deposits and high durability.",
-    },
-    {
-      id: 6,
-      name: "Verde Guatemala",
-      category: "Marble",
-      subCategory: "Imported Marble",
-      origin: "Guatemala",
-      image: "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=500&auto=format&fit=crop",
-      description: "Exotic green marble with white and black veining patterns.",
-    },
-    {
-      id: 7,
-      name: "Emperador Dark",
-      category: "Marble",
-      subCategory: "Imported Marble",
-      origin: "Spain",
-      image: "https://images.unsplash.com/photo-1618220370223-3e8c7dc04aad?q=80&w=500&auto=format&fit=crop",
-      description: "Rich brown marble with lighter veining, perfect for elegant spaces.",
-    },
-    {
-      id: 8,
-      name: "Absolute Black",
-      category: "Granite",
-      subCategory: "Imported Granite",
-      origin: "Zimbabwe",
-      image: "https://images.unsplash.com/photo-1614159102500-23508d71fcf2?q=80&w=500&auto=format&fit=crop",
-      description: "Pure black granite with consistent coloring and exceptional hardness.",
-    },
-  ];
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  const queryParams = new URLSearchParams(location.search);
+  
+  const [activeCategory, setActiveCategory] = useState(queryParams.get("category") || "all");
+  const [activeSubCategory, setActiveSubCategory] = useState(queryParams.get("subCategory") || "");
+  const [searchTerm, setSearchTerm] = useState(queryParams.get("search") || "");
+  
   const categories = ["all", "Marble", "Granite"];
   
   const subCategories = {
@@ -99,12 +21,40 @@ const Products = () => {
     Granite: ["Indian Granite", "Imported Granite"],
   };
 
+  useEffect(() => {
+    // Update URL when filters change
+    const params = new URLSearchParams();
+    if (activeCategory !== "all") {
+      params.set("category", activeCategory);
+    }
+    if (activeSubCategory) {
+      params.set("subCategory", activeSubCategory);
+    }
+    if (searchTerm) {
+      params.set("search", searchTerm);
+    }
+    
+    const newUrl = params.toString() ? `?${params.toString()}` : "";
+    navigate(`/products${newUrl}`, { replace: true });
+  }, [activeCategory, activeSubCategory, searchTerm, navigate]);
+
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    setActiveSubCategory(""); // Reset subcategory when category changes
+  };
+
+  const handleSubCategoryChange = (subCategory: string) => {
+    setActiveSubCategory(subCategory === activeSubCategory ? "" : subCategory);
+  };
+
   const filteredProducts = products.filter((product) => {
     const matchesCategory = activeCategory === "all" || product.category === activeCategory;
+    const matchesSubCategory = !activeSubCategory || product.subCategory === activeSubCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           product.subCategory.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          product.origin.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearch;
+                          product.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesCategory && matchesSubCategory && matchesSearch;
   });
 
   return (
@@ -134,7 +84,7 @@ const Products = () => {
                       ? "bg-gold-dark text-white"
                       : "bg-stone-100 text-stone-800 hover:bg-stone-200"
                   }`}
-                  onClick={() => setActiveCategory(category)}
+                  onClick={() => handleCategoryChange(category)}
                 >
                   {category === "all" ? "All Products" : category}
                 </button>
@@ -151,6 +101,28 @@ const Products = () => {
               />
             </div>
           </div>
+
+          {/* Sub-categories */}
+          {activeCategory !== "all" && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {subCategories[activeCategory as keyof typeof subCategories]?.map((subCategory) => (
+                <button
+                  key={subCategory}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition flex items-center ${
+                    activeSubCategory === subCategory
+                      ? "bg-stone-200 text-stone-800"
+                      : "bg-stone-50 text-stone-600 hover:bg-stone-100"
+                  }`}
+                  onClick={() => handleSubCategoryChange(subCategory)}
+                >
+                  {activeSubCategory === subCategory && (
+                    <CheckCircle className="mr-1 text-gold-dark" size={14} />
+                  )}
+                  {subCategory}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -160,7 +132,11 @@ const Products = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => (
-                <div key={product.id} className="marble-card group">
+                <Link 
+                  to={`/products/${product.id}`} 
+                  key={product.id} 
+                  className="marble-card group cursor-pointer"
+                >
                   <div className="h-64 overflow-hidden">
                     <img
                       src={product.image}
@@ -183,14 +159,11 @@ const Products = () => {
                     <p className="text-stone-600 text-sm mt-2 line-clamp-2">
                       {product.description}
                     </p>
-                    <Link
-                      to="/contact"
-                      className="mt-4 inline-block text-gold-dark font-medium text-sm hover:text-gold-dark/80"
-                    >
-                      Request Information
-                    </Link>
+                    <div className="mt-4 text-gold-dark font-medium text-sm hover:text-gold-dark/80">
+                      View Details
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))
             ) : (
               <div className="col-span-full text-center py-10">
@@ -244,8 +217,8 @@ const Products = () => {
                         </h4>
                         <button
                           onClick={() => {
-                            setActiveCategory("Marble");
-                            setSearchTerm(subCategory);
+                            handleCategoryChange("Marble");
+                            handleSubCategoryChange(subCategory);
                           }}
                           className="bg-white text-stone-800 hover:bg-gold-light text-sm font-medium px-4 py-2 rounded-md transition"
                         >
@@ -285,8 +258,8 @@ const Products = () => {
                         </h4>
                         <button
                           onClick={() => {
-                            setActiveCategory("Granite");
-                            setSearchTerm(subCategory);
+                            handleCategoryChange("Granite");
+                            handleSubCategoryChange(subCategory);
                           }}
                           className="bg-white text-stone-800 hover:bg-gold-light text-sm font-medium px-4 py-2 rounded-md transition"
                         >
