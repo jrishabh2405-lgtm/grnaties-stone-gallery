@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "prisma generate && vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -13,7 +13,9 @@
     "server:watch": "nodemon --watch server --exec tsx server/index.ts",
     "start": "node dist-server/index.js",
     "build:server": "tsc --project tsconfig.server.json",
-    "seed": "tsx server/scripts/seed.ts"
+    "seed": "tsx server/scripts/seed.ts",
+    "vercel-build": "prisma generate && prisma migrate deploy && vite build",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -46,8 +48,10 @@
     "@radix-ui/react-toggle-group": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@tanstack/react-query": "^5.56.2",
+    "@vercel/node": "^5.5.16",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
     "cors": "^2.8.5",
@@ -56,6 +60,7 @@
     "embla-carousel-react": "^8.3.0",
     "express": "^5.1.0",
     "express-validator": "^7.3.1",
+    "formidable": "^3.5.4",
     "framer-motion": "^12.23.24",
     "input-otp": "^1.2.4",
     "jsonwebtoken": "^9.0.2",
@@ -87,6 +92,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
+    "@types/formidable": "^3.4.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/multer": "^2.0.0",
     "@types/node": "^22.5.5",
