@@ -243,7 +243,7 @@ const Gallery = () => {
           <div className="text-center mb-12">
             <h2 className="section-title">Client Testimonials</h2>
             <p className="section-subtitle">
-              What our clients say about their experience with SM GRNATIES
+              What our clients say about their experience with SM GRANITES
             </p>
           </div>
 
@@ -253,7 +253,7 @@ const Gallery = () => {
                 <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
               </div>
               <blockquote className="text-stone-600 italic mb-4">
-                "The marble we sourced from SM GRNATIES transformed our home completely. The quality was exceptional and their team helped us select the perfect variety for our space."
+                "The marble we sourced from SM GRANITES transformed our home completely. The quality was exceptional and their team helped us select the perfect variety for our space."
               </blockquote>
               <div>
                 <p className="font-medium">Priya & Rahul Khanna</p>
@@ -266,7 +266,7 @@ const Gallery = () => {
                 <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
               </div>
               <blockquote className="text-stone-600 italic mb-4">
-                "As an interior designer, I've worked with many stone suppliers, but SM GRNATIES stands out for their extensive collection and commitment to quality. My clients are always impressed."
+                "As an interior designer, I've worked with many stone suppliers, but SM GRANITES stands out for their extensive collection and commitment to quality. My clients are always impressed."
               </blockquote>
               <div>
                 <p className="font-medium">Anjali Sharma</p>
@@ -279,7 +279,7 @@ const Gallery = () => {
                 <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
               </div>
               <blockquote className="text-stone-600 italic mb-4">
-                "For our hotel renovation project, we needed consistent quality across large quantities of marble. SM GRNATIES delivered perfectly, on time and with excellent service."
+                "For our hotel renovation project, we needed consistent quality across large quantities of marble. SM GRANITES delivered perfectly, on time and with excellent service."
               </blockquote>
               <div>
                 <p className="font-medium">Vikram Singh</p>

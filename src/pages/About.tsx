@@ -7,7 +7,7 @@ const About = () => {
     {
       year: "1998",
       title: "Company Founded",
-      description: "SM GRNATIES was established in Kishangarh, Rajasthan."
+      description: "SM GRANITES was established in Kishangarh, Rajasthan."
     },
     {
       year: "2005",
@@ -56,7 +56,7 @@ const About = () => {
       <section className="relative py-20 bg-stone-100">
         <div className="container-custom">
           <div className="max-w-3xl">
-            <h1 className="heading-xl mb-6">About SM GRNATIES</h1>
+            <h1 className="heading-xl mb-6">About SM GRANITES</h1>
             <p className="text-lg text-stone-600">
               A legacy of excellence in natural stone solutions, built over 25 years of dedicated craftsmanship and customer service.
             </p>
@@ -78,13 +78,13 @@ const About = () => {
             <div>
               <h2 className="heading-lg mb-6">Our Story</h2>
               <p className="text-stone-600 mb-4">
-                Founded in 1998, SM GRNATIES began as a small supplier of local marble in Kishangarh, Rajasthan - a region globally renowned for its exquisite marble deposits. What started as a modest operation has now evolved into one of the leading providers of premium natural stone solutions in India.
+                Founded in 1998, SM GRANITES began as a small supplier of local marble in Kishangarh, Rajasthan - a region globally renowned for its exquisite marble deposits. What started as a modest operation has now evolved into one of the leading providers of premium natural stone solutions in India.
               </p>
               <p className="text-stone-600 mb-4">
                 Our journey has been defined by a relentless pursuit of quality and excellence. Over the years, we have expanded our collection to include over 250 varieties of marble and granite from quarries across India and around the world, each selected for its unique characteristics and aesthetic appeal.
               </p>
               <p className="text-stone-600">
-                Today, SM GRNATIES is trusted by architects, interior designers, and homeowners for delivering natural stones that transform spaces into works of art. Our expertise, attention to detail, and commitment to customer satisfaction continue to drive our growth and reputation in the industry.
+                Today, SM GRANITES is trusted by architects, interior designers, and homeowners for delivering natural stones that transform spaces into works of art. Our expertise, attention to detail, and commitment to customer satisfaction continue to drive our growth and reputation in the industry.
               </p>
             </div>
           </div>
@@ -180,7 +180,7 @@ const About = () => {
           <div className="text-center mb-12">
             <h2 className="section-title">Our Leadership</h2>
             <p className="section-subtitle">
-              Meet the experts behind SM GRNATIES
+              Meet the experts behind SM GRANITES
             </p>
           </div>
 

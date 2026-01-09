@@ -1,73 +1,195 @@
-# Welcome to your Lovable project
+# SM GRNATIES - Stone Gallery
 
-## Project info
+Premium marble and granite solutions showcasing over 250 varieties of natural stones with 25+ years of excellence.
 
-**URL**: https://lovable.dev/projects/2b375415-4268-4b7b-812f-7436c8c83725
+## 🚀 Quick Start
 
-## How can I edit this code?
+### Prerequisites
+- Node.js 18+ and npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
-There are several ways of editing your application.
+### Installation
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/2b375415-4268-4b7b-812f-7436c8c83725) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd grnaties-stone-gallery
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The application will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🛠️ Technology Stack
 
-**Use GitHub Codespaces**
+### Frontend
+- **React 18.3.1** - Modern UI framework
+- **TypeScript** - Type-safe development
+- **Vite 5.4** - Fast build tool with SWC compiler
+- **Tailwind CSS 3.4** - Utility-first styling
+- **shadcn/ui** - High-quality React components
+- **React Router 6** - Client-side routing
+- **TanStack Query** - Data fetching and state management
+- **React Hook Form + Zod** - Form handling and validation
+- **Lucide React** - Icon library
+- **Sonner** - Toast notifications
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Backend (Coming Soon)
+- **Express.js** - Node.js web framework
+- **MongoDB** - NoSQL database for products and content
+- **Multer** - File upload handling
+- **JWT** - Authentication tokens
 
-## What technologies are used for this project?
+## 📁 Project Structure
 
-This project is built with:
+```
+grnaties-stone-gallery/
+├── src/
+│   ├── components/        # Reusable UI components
+│   │   ├── ui/           # shadcn-ui components
+│   │   ├── Navbar.tsx    # Navigation component
+│   │   ├── Hero.tsx      # Hero section
+│   │   ├── Footer.tsx    # Footer component
+│   │   └── ...
+│   ├── pages/            # Page components
+│   │   ├── Index.tsx     # Home page
+│   │   ├── Products.tsx  # Product listing
+│   │   ├── ProductDetail.tsx
+│   │   ├── Gallery.tsx
+│   │   ├── Contact.tsx
+│   │   └── About.tsx
+│   ├── data/             # Static data
+│   │   └── products.ts   # Product database
+│   ├── types/            # TypeScript definitions
+│   ├── hooks/            # Custom React hooks
+│   ├── lib/              # Utility functions
+│   ├── App.tsx           # Main app component
+│   └── main.tsx          # Entry point
+├── public/               # Static assets
+├── server/               # Backend (Coming Soon)
+└── ...config files
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🎯 Available Scripts
 
-## How can I deploy this project?
+```bash
+# Development
+npm run dev          # Start development server (port 8080)
 
-Simply open [Lovable](https://lovable.dev/projects/2b375415-4268-4b7b-812f-7436c8c83725) and click on Share -> Publish.
+# Production
+npm run build        # Build for production
+npm run preview      # Preview production build
 
-## Can I connect a custom domain to my Lovable project?
+# Code Quality
+npm run lint         # Run ESLint
+```
 
-Yes, you can!
+## 🚢 Deployment
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Deploy to Vercel
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Install Vercel CLI:
+```bash
+npm i -g vercel
+```
+
+2. Deploy:
+```bash
+vercel
+```
+
+### Deploy to Netlify
+
+1. Install Netlify CLI:
+```bash
+npm i -g netlify-cli
+```
+
+2. Build and deploy:
+```bash
+npm run build
+netlify deploy --prod --dir=dist
+```
+
+### Deploy to GitHub Pages
+
+1. Update `vite.config.ts` with your repo name:
+```typescript
+export default defineConfig({
+  base: '/your-repo-name/',
+  // ...
+});
+```
+
+2. Build and deploy:
+```bash
+npm run build
+# Push the dist folder to gh-pages branch
+```
+
+### Environment Variables
+
+Create a `.env` file in the root directory:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+VITE_SITE_URL=https://your-domain.com
+```
+
+## 🔐 Admin Dashboard (Coming Soon)
+
+The admin dashboard will allow you to:
+- Manage products (Add, Edit, Delete)
+- Upload and organize product images
+- Manage gallery projects
+- Edit page content
+- Handle customer inquiries
+- View analytics
+
+Access: `/admin` (after implementation)
+
+## 🌟 Features
+
+### Current Features
+- ✅ Responsive design for all devices
+- ✅ Product catalog with filtering
+- ✅ Product detail pages
+- ✅ Project gallery
+- ✅ Contact form (UI only)
+- ✅ About page with company information
+
+### Upcoming Features
+- 🔄 Backend API integration
+- 🔄 Admin dashboard
+- 🔄 Real email integration for contact form
+- 🔄 Product search and advanced filtering
+- 🔄 Customer reviews and ratings
+- 🔄 Quote request system
+- 🔄 Wishlist functionality
+- 🔄 Image gallery with lightbox
+- 🔄 Product comparison
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is proprietary software owned by SM GRNATIES.
+
+## 📧 Contact
+
+For inquiries, please visit our [Contact Page](./src/pages/Contact.tsx) or reach out directly.
+
+---
+
+Built with ❤️ by SM GRNATIES Team

@@ -36,7 +36,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-medium text-lg mb-1">Visit Us</h4>
                     <p className="text-stone-600">
-                      SM GRNATIES<br />
+                      SM GRANITES<br />
                       Kishangarh, Rajasthan, India
                     </p>
                   </div>
