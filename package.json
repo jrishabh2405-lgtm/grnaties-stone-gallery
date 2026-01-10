@@ -14,8 +14,7 @@
     "start": "node dist-server/index.js",
     "build:server": "tsc --project tsconfig.server.json",
     "seed": "tsx server/scripts/seed.ts",
-    "vercel-build": "prisma generate && prisma migrate deploy && vite build",
-    "postinstall": "prisma generate"
+    "vercel-build": "prisma generate && vite build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -1,7 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "prisma generate && npm run build",
-  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/api/:path*",
