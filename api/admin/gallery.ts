@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import prisma from '../_lib/prisma';
-import { handleCors } from '../_lib/cors';
-import { AuthRequest, requireAdmin } from '../_lib/auth';
-import { parseForm, uploadToCloudinary } from '../_lib/upload';
+import prisma from '../_lib/prisma.js';
+import { handleCors } from '../_lib/cors.js';
+import { AuthRequest, requireAdmin } from '../_lib/auth.js';
+import { parseForm, uploadToCloudinary } from '../_lib/upload.js';
 
 export const config = {
     api: {
