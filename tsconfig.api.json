@@ -16,7 +16,8 @@
         "isolatedModules": true,
         "noEmit": true,
         "allowJs": true,
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "allowImportingTsExtensions": true
     },
     "include": [
         "api/**/*"
