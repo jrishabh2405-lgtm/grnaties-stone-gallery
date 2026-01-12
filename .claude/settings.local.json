@@ -13,7 +13,10 @@
       "Bash(set DATABASE_URL)",
       "Bash(npx prisma:*)",
       "Bash(npm run server:watch:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

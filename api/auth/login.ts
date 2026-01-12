@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+import * as bcrypt from 'bcryptjs';
 import prisma from '../_lib/prisma';
 import { handleCors } from '../_lib/cors';
 

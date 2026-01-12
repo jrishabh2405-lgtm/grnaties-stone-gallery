@@ -1,6 +1,6 @@
 import { v2 as cloudinary } from 'cloudinary';
 import type { VercelRequest } from '@vercel/node';
-import formidable from 'formidable';
+import * as formidable from 'formidable';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -19,7 +19,7 @@ export async function parseForm(req: VercelRequest): Promise<{
     fields: formidable.Fields;
     files: formidable.Files;
 }> {
-    const form = formidable({
+    const form = formidable.formidable({
         maxFileSize: 10 * 1024 * 1024, // 10MB
         keepExtensions: true,
     });
