@@ -24,8 +24,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Find admin
-        const admin = await prisma.admin.findUnique({
-            where: { email: email.toLowerCase(), isActive: true },
+        const admin = await prisma.admin.findFirst({
+            where: {
+                email: email.toLowerCase(),
+                isActive: true
+            },
         });
 
         if (!admin) {
