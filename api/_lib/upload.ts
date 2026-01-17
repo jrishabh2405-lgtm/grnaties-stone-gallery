@@ -1,13 +1,7 @@
-import { v2 as cloudinary } from 'cloudinary';
 import type { VercelRequest } from '@vercel/node';
 import * as formidable from 'formidable';
-
-// Configure Cloudinary
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+import { readFileSync } from 'fs';
+import supabase from './supabase.js';
 
 export interface UploadedFile {
     filepath: string;
@@ -32,29 +26,52 @@ export async function parseForm(req: VercelRequest): Promise<{
     });
 }
 
-export async function uploadToCloudinary(
+export async function uploadToSupabase(
     filePath: string,
-    folder: string = 'sm-grnaties'
+    folder: string = 'images'
 ): Promise<string> {
     try {
-        const result = await cloudinary.uploader.upload(filePath, {
-            folder,
-            resource_type: 'auto',
-        });
-        return result.secure_url;
+        const fileBuffer = readFileSync(filePath);
+        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
+        const { data, error } = await supabase.storage
+            .from('sm-grnaties')
+            .upload(fileName, fileBuffer, {
+                contentType: 'image/jpeg',
+                upsert: true,
+            });
+
+        if (error) {
+            console.error('Supabase upload error:', error);
+            throw new Error('Failed to upload image');
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+            .from('sm-grnaties')
+            .getPublicUrl(data.path);
+
+        return urlData.publicUrl;
     } catch (error) {
-        console.error('Cloudinary upload error:', error);
+        console.error('Upload error:', error);
         throw new Error('Failed to upload image');
     }
 }
 
-export async function deleteFromCloudinary(publicId: string): Promise<void> {
+export async function deleteFromSupabase(filePath: string): Promise<void> {
     try {
-        await cloudinary.uploader.destroy(publicId);
+        // Extract the path from the full URL if needed
+        const path = filePath.includes('sm-grnaties/')
+            ? filePath.split('sm-grnaties/')[1]
+            : filePath;
+
+        await supabase.storage.from('sm-grnaties').remove([path]);
     } catch (error) {
-        console.error('Cloudinary delete error:', error);
+        console.error('Supabase delete error:', error);
         // Don't throw error, just log it
     }
 }
 
-export { cloudinary };
+// Keep old function names as aliases for compatibility
+export const uploadToCloudinary = uploadToSupabase;
+export const deleteFromCloudinary = deleteFromSupabase;
