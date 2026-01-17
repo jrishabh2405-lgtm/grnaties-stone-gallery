@@ -69,3 +69,53 @@ model Contact {
   @@index([status])
   @@index([createdAt])
 }
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String?
+  company   String?
+  content   String   @db.Text
+  rating    Int      @default(5)
+  image     String?
+  featured  Boolean  @default(false)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([featured])
+  @@index([isActive])
+}
+
+model TeamMember {
+  id          String   @id @default(cuid())
+  name        String
+  role        String
+  description String?  @db.Text
+  image       String?
+  email       String?
+  phone       String?
+  linkedin    String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([order])
+  @@index([isActive])
+}
+
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  category  String?
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+  @@index([order])
+  @@index([isActive])
+}

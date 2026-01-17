@@ -1,9 +1,40 @@
 
-import React from "react";
-import { MapPin, Phone, Mail, Clock } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { MapPin, Phone, Mail, Clock, Loader2 } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+  order: number;
+}
+
 const Contact = () => {
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [loadingFaqs, setLoadingFaqs] = useState(true);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const response = await fetch(`${API_URL}/faqs`);
+        if (response.ok) {
+          const data = await response.json();
+          setFaqs(data);
+        }
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+      } finally {
+        setLoadingFaqs(false);
+      }
+    };
+
+    fetchFaqs();
+  }, []);
+
   return (
     <div>
       {/* Hero Section */}
@@ -162,35 +193,50 @@ const Contact = () => {
             </p>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-6">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-serif text-lg font-semibold mb-2">Do you ship products to other cities in India?</h3>
-              <p className="text-stone-600">
-                Yes, we deliver our marble and granite products across India through our reliable logistics network, ensuring safe transportation of your selected stones.
-              </p>
+          {loadingFaqs ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="w-8 h-8 animate-spin text-gold-dark" />
             </div>
+          ) : faqs.length > 0 ? (
+            <div className="max-w-3xl mx-auto space-y-6">
+              {faqs.map((faq) => (
+                <div key={faq.id} className="bg-white p-6 rounded-lg shadow-sm">
+                  <h3 className="font-serif text-lg font-semibold mb-2">{faq.question}</h3>
+                  <p className="text-stone-600">{faq.answer}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="max-w-3xl mx-auto space-y-6">
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="font-serif text-lg font-semibold mb-2">Do you ship products to other cities in India?</h3>
+                <p className="text-stone-600">
+                  Yes, we deliver our marble and granite products across India through our reliable logistics network, ensuring safe transportation of your selected stones.
+                </p>
+              </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-serif text-lg font-semibold mb-2">Can I request samples before making a purchase?</h3>
-              <p className="text-stone-600">
-                Absolutely! We offer a sample service to help you evaluate the color, texture, and quality of our stone varieties before making your final decision.
-              </p>
-            </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="font-serif text-lg font-semibold mb-2">Can I request samples before making a purchase?</h3>
+                <p className="text-stone-600">
+                  Absolutely! We offer a sample service to help you evaluate the color, texture, and quality of our stone varieties before making your final decision.
+                </p>
+              </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-serif text-lg font-semibold mb-2">Do you provide installation services?</h3>
-              <p className="text-stone-600">
-                While we focus on supplying premium quality natural stones, we can recommend trusted installation professionals in your area through our network of partners.
-              </p>
-            </div>
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="font-serif text-lg font-semibold mb-2">Do you provide installation services?</h3>
+                <p className="text-stone-600">
+                  While we focus on supplying premium quality natural stones, we can recommend trusted installation professionals in your area through our network of partners.
+                </p>
+              </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-serif text-lg font-semibold mb-2">What is your return policy?</h3>
-              <p className="text-stone-600">
-                We have a comprehensive quality check process before dispatch. In case of any defects or damage during transit, please notify us within 48 hours of receipt, and we'll work towards a suitable resolution.
-              </p>
+              <div className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="font-serif text-lg font-semibold mb-2">What is your return policy?</h3>
+                <p className="text-stone-600">
+                  We have a comprehensive quality check process before dispatch. In case of any defects or damage during transit, please notify us within 48 hours of receipt, and we'll work towards a suitable resolution.
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
     </div>

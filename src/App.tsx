@@ -18,6 +18,9 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import DashboardHome from "./pages/admin/DashboardHome";
 import AdminProducts from "./pages/admin/Products";
 import AdminGallery from "./pages/admin/GalleryAdmin";
+import AdminTestimonials from "./pages/admin/Testimonials";
+import AdminTeam from "./pages/admin/Team";
+import AdminFAQs from "./pages/admin/FAQs";
 import AdminContacts from "./pages/admin/Contacts";
 
 const queryClient = new QueryClient();
@@ -35,6 +38,9 @@ const App = () => (
             <Route index element={<DashboardHome />} />
             <Route path="products" element={<AdminProducts />} />
             <Route path="gallery" element={<AdminGallery />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="team" element={<AdminTeam />} />
+            <Route path="faqs" element={<AdminFAQs />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
 

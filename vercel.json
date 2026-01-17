@@ -20,6 +20,18 @@
       "destination": "/api/admin/gallery?id=:id"
     },
     {
+      "source": "/api/admin/testimonials/:id",
+      "destination": "/api/admin/testimonials?id=:id"
+    },
+    {
+      "source": "/api/admin/team/:id",
+      "destination": "/api/admin/team?id=:id"
+    },
+    {
+      "source": "/api/admin/faqs/:id",
+      "destination": "/api/admin/faqs?id=:id"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/:path*"
     },

@@ -20,7 +20,9 @@
       "Bash(timeout 30 bash -c 'while ! grep -q \"\"error\\\\|success\\\\|applied\\\\|✔\"\" C:\\\\Users\\\\himan\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-himan-Documents-GitHub-grnaties-stone-gallery\\\\tasks\\\\b332d4a.output 2>/dev/null; do sleep 2; done; cat C:\\\\Users\\\\himan\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-himan-Documents-GitHub-grnaties-stone-gallery\\\\tasks\\\\b332d4a.output')",
       "Bash(cat:*)",
       "Bash(node:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []

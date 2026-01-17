@@ -303,6 +303,135 @@ const products = [
   }
 ];
 
+const testimonials = [
+  {
+    name: "Rajesh Sharma",
+    role: "Interior Designer",
+    company: "Sharma Interiors",
+    content: "SM GRANITES provided exceptional quality Italian marble for our luxury villa project. The Calacatta Gold they sourced was absolutely stunning, and their team ensured timely delivery. Highly recommended for premium natural stone.",
+    rating: 5,
+    featured: true,
+    isActive: true
+  },
+  {
+    name: "Priya Patel",
+    role: "Architect",
+    company: "Patel & Associates",
+    content: "We've been sourcing granite from SM GRANITES for over 3 years. Their Black Galaxy granite is consistently high quality, and their customer service is outstanding. They're our go-to supplier for all stone requirements.",
+    rating: 5,
+    featured: true,
+    isActive: true
+  },
+  {
+    name: "Amit Kumar",
+    role: "Property Developer",
+    company: "Kumar Estates",
+    content: "The Makrana White marble we purchased was perfect for our hotel lobby project. SM GRANITES helped us select the right stone and provided expert guidance throughout. Excellent experience!",
+    rating: 5,
+    featured: false,
+    isActive: true
+  },
+  {
+    name: "Sunita Reddy",
+    role: "Homeowner",
+    company: "",
+    content: "Transformed our kitchen with beautiful granite countertops from SM GRANITES. The quality exceeded our expectations, and the price was very competitive. Thank you for making our dream kitchen a reality!",
+    rating: 5,
+    featured: false,
+    isActive: true
+  }
+];
+
+const teamMembers = [
+  {
+    name: "Rishabh Jain",
+    role: "Managing Director",
+    description: "Overseeing all operations with 15+ years of industry expertise in marble and granite trading.",
+    order: 1,
+    isActive: true
+  },
+  {
+    name: "Suresh Kumar",
+    role: "Operations Head",
+    description: "Managing day-to-day operations and ensuring quality standards across all processes.",
+    order: 2,
+    isActive: true
+  },
+  {
+    name: "Anita Sharma",
+    role: "Sales Director",
+    description: "Leading our sales team and building lasting relationships with clients across India.",
+    order: 3,
+    isActive: true
+  },
+  {
+    name: "Vikram Singh",
+    role: "Quality Manager",
+    description: "Ensuring every slab meets our rigorous quality standards before delivery.",
+    order: 4,
+    isActive: true
+  }
+];
+
+const faqs = [
+  {
+    question: "Do you ship products to other cities in India?",
+    answer: "Yes, we deliver our marble and granite products across India through our reliable logistics network, ensuring safe transportation of your selected stones. We have partnerships with trusted carriers who specialize in handling natural stone products.",
+    category: "shipping",
+    order: 1,
+    isActive: true
+  },
+  {
+    question: "Can I request samples before making a purchase?",
+    answer: "Absolutely! We offer a sample service to help you evaluate the color, texture, and quality of our stone varieties before making your final decision. Contact us to request samples of any product in our collection.",
+    category: "ordering",
+    order: 2,
+    isActive: true
+  },
+  {
+    question: "Do you provide installation services?",
+    answer: "While we focus on supplying premium quality natural stones, we can recommend trusted installation professionals in your area through our network of partners. We also provide detailed installation guidelines with every purchase.",
+    category: "installation",
+    order: 3,
+    isActive: true
+  },
+  {
+    question: "What is your return policy?",
+    answer: "We have a comprehensive quality check process before dispatch. In case of any defects or damage during transit, please notify us within 48 hours of receipt, and we'll work towards a suitable resolution including replacement or refund.",
+    category: "ordering",
+    order: 4,
+    isActive: true
+  },
+  {
+    question: "How do I maintain marble and granite surfaces?",
+    answer: "For daily cleaning, use a soft cloth with mild soap and water. Avoid acidic cleaners on marble. Seal granite countertops annually. We provide detailed care instructions with every purchase and our team is available for maintenance guidance.",
+    category: "maintenance",
+    order: 5,
+    isActive: true
+  },
+  {
+    question: "What is the difference between marble and granite?",
+    answer: "Marble is a metamorphic rock known for its elegant veining and softer surface, ideal for low-traffic areas and decorative applications. Granite is an igneous rock that's harder, more durable, and resistant to scratches, making it perfect for high-traffic areas and kitchen countertops.",
+    category: "products",
+    order: 6,
+    isActive: true
+  },
+  {
+    question: "Do you offer custom sizes and finishes?",
+    answer: "Yes, we offer custom cutting and various finish options including polished, honed, brushed, and leather finishes. Contact our team with your specific requirements and we'll provide a custom quote.",
+    category: "products",
+    order: 7,
+    isActive: true
+  },
+  {
+    question: "What payment methods do you accept?",
+    answer: "We accept bank transfers, UPI payments, and major credit/debit cards. For large orders, we offer flexible payment terms including advance payment with balance on delivery. Contact us to discuss payment options for your specific order.",
+    category: "ordering",
+    order: 8,
+    isActive: true
+  }
+];
+
 const galleryItems = [
   {
     title: "Luxury Villa Flooring",
@@ -421,14 +550,62 @@ async function main() {
     console.log(`ℹ️  Found ${existingGallery} existing gallery items, skipping gallery seed`);
   }
 
+  // Seed testimonials
+  const existingTestimonials = await prisma.testimonial.count();
+  if (existingTestimonials === 0) {
+    console.log('💬 Seeding testimonials...');
+    for (const item of testimonials) {
+      await prisma.testimonial.create({
+        data: item,
+      });
+    }
+    console.log(`✅ Created ${testimonials.length} testimonials`);
+  } else {
+    console.log(`ℹ️  Found ${existingTestimonials} existing testimonials, skipping testimonials seed`);
+  }
+
+  // Seed team members
+  const existingTeam = await prisma.teamMember.count();
+  if (existingTeam === 0) {
+    console.log('👥 Seeding team members...');
+    for (const item of teamMembers) {
+      await prisma.teamMember.create({
+        data: item,
+      });
+    }
+    console.log(`✅ Created ${teamMembers.length} team members`);
+  } else {
+    console.log(`ℹ️  Found ${existingTeam} existing team members, skipping team seed`);
+  }
+
+  // Seed FAQs
+  const existingFaqs = await prisma.fAQ.count();
+  if (existingFaqs === 0) {
+    console.log('❓ Seeding FAQs...');
+    for (const item of faqs) {
+      await prisma.fAQ.create({
+        data: item,
+      });
+    }
+    console.log(`✅ Created ${faqs.length} FAQs`);
+  } else {
+    console.log(`ℹ️  Found ${existingFaqs} existing FAQs, skipping FAQs seed`);
+  }
+
   // Final counts
   const productsCount = await prisma.product.count();
   const galleryCount = await prisma.gallery.count();
+  const testimonialsCount = await prisma.testimonial.count();
+  const teamCount = await prisma.teamMember.count();
+  const faqsCount = await prisma.fAQ.count();
   const contactsCount = await prisma.contact.count();
 
   console.log('\n📊 Database summary:');
   console.log(`   Products: ${productsCount}`);
   console.log(`   Gallery items: ${galleryCount}`);
+  console.log(`   Testimonials: ${testimonialsCount}`);
+  console.log(`   Team members: ${teamCount}`);
+  console.log(`   FAQs: ${faqsCount}`);
   console.log(`   Contacts: ${contactsCount}`);
 
   console.log('\n✅ Database seeding completed!');

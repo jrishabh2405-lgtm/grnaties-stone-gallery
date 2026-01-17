@@ -14,9 +14,20 @@ interface GalleryItem {
   featured: boolean;
 }
 
+interface Testimonial {
+  id: string;
+  name: string;
+  role?: string;
+  company?: string;
+  content: string;
+  rating: number;
+  image?: string;
+}
+
 const Gallery = () => {
   const [activeFilter, setActiveFilter] = useState("all");
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   const filters = [
@@ -29,22 +40,32 @@ const Gallery = () => {
   ];
 
   useEffect(() => {
-    const fetchGallery = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_URL}/gallery`);
-        if (!response.ok) throw new Error('Failed to fetch gallery');
-        const data = await response.json();
-        setGalleryItems(data);
+        const [galleryRes, testimonialsRes] = await Promise.all([
+          fetch(`${API_URL}/gallery`),
+          fetch(`${API_URL}/testimonials`),
+        ]);
+
+        if (galleryRes.ok) {
+          const galleryData = await galleryRes.json();
+          setGalleryItems(galleryData);
+        }
+
+        if (testimonialsRes.ok) {
+          const testimonialsData = await testimonialsRes.json();
+          setTestimonials(testimonialsData);
+        }
       } catch (error) {
-        console.error('Error fetching gallery:', error);
+        console.error('Error fetching data:', error);
         toast.error('Failed to load gallery');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchGallery();
+    fetchData();
   }, []);
 
   const filteredItems =
@@ -188,57 +209,50 @@ const Gallery = () => {
       )}
 
       {/* Client Testimonials */}
-      <section className="section-padding">
-        <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Client Testimonials</h2>
-            <p className="section-subtitle">
-              What our clients say about their experience with SM GRANITES
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
-              </div>
-              <blockquote className="text-stone-600 italic mb-4">
-                "The marble we sourced from SM GRANITES transformed our home completely. The quality was exceptional and their team helped us select the perfect variety for our space."
-              </blockquote>
-              <div>
-                <p className="font-medium">Priya & Rahul Khanna</p>
-                <p className="text-sm text-stone-500">Homeowner, Delhi</p>
-              </div>
+      {testimonials.length > 0 && (
+        <section className="section-padding">
+          <div className="container-custom">
+            <div className="text-center mb-12">
+              <h2 className="section-title">Client Testimonials</h2>
+              <p className="section-subtitle">
+                What our clients say about their experience with SM GRANITES
+              </p>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
-              </div>
-              <blockquote className="text-stone-600 italic mb-4">
-                "As an interior designer, I've worked with many stone suppliers, but SM GRANITES stands out for their extensive collection and commitment to quality. My clients are always impressed."
-              </blockquote>
-              <div>
-                <p className="font-medium">Anjali Sharma</p>
-                <p className="text-sm text-stone-500">Interior Designer, Mumbai</p>
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="flex items-center mb-4">
-                <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
-              </div>
-              <blockquote className="text-stone-600 italic mb-4">
-                "For our hotel renovation project, we needed consistent quality across large quantities of marble. SM GRANITES delivered perfectly, on time and with excellent service."
-              </blockquote>
-              <div>
-                <p className="font-medium">Vikram Singh</p>
-                <p className="text-sm text-stone-500">Hotel Developer, Jaipur</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {testimonials.slice(0, 3).map((testimonial) => (
+                <div key={testimonial.id} className="bg-white p-6 rounded-lg shadow-md">
+                  <div className="flex items-center mb-4">
+                    <div className="text-gold-dark text-2xl mr-2">
+                      {'★'.repeat(testimonial.rating)}{'☆'.repeat(5 - testimonial.rating)}
+                    </div>
+                  </div>
+                  <blockquote className="text-stone-600 italic mb-4">
+                    "{testimonial.content}"
+                  </blockquote>
+                  <div className="flex items-center gap-3">
+                    {testimonial.image && (
+                      <img
+                        src={testimonial.image}
+                        alt={testimonial.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{testimonial.name}</p>
+                      {(testimonial.role || testimonial.company) && (
+                        <p className="text-sm text-stone-500">
+                          {testimonial.role}{testimonial.role && testimonial.company ? ', ' : ''}{testimonial.company}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

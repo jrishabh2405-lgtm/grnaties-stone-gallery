@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Outlet, NavLink } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LogOut, Package, Image, Mail, LayoutDashboard } from 'lucide-react';
+import { LogOut, Package, Image, Mail, LayoutDashboard, MessageSquare, Users, HelpCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
@@ -51,6 +51,9 @@ export default function AdminDashboard() {
     { to: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { to: '/admin/dashboard/products', icon: Package, label: 'Products' },
     { to: '/admin/dashboard/gallery', icon: Image, label: 'Gallery' },
+    { to: '/admin/dashboard/testimonials', icon: MessageSquare, label: 'Testimonials' },
+    { to: '/admin/dashboard/team', icon: Users, label: 'Team' },
+    { to: '/admin/dashboard/faqs', icon: HelpCircle, label: 'FAQs' },
     { to: '/admin/dashboard/contacts', icon: Mail, label: 'Contacts' },
   ];
 

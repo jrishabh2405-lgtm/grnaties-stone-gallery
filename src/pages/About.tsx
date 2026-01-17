@@ -1,8 +1,40 @@
 
-import React from "react";
-import { CheckCircle } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { CheckCircle, Loader2 } from "lucide-react";
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  description?: string;
+  image?: string;
+  email?: string;
+  linkedin?: string;
+}
 
 const About = () => {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(true);
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const response = await fetch(`${API_URL}/team`);
+        if (response.ok) {
+          const data = await response.json();
+          setTeamMembers(data);
+        }
+      } catch (error) {
+        console.error('Error fetching team:', error);
+      } finally {
+        setLoadingTeam(false);
+      }
+    };
+
+    fetchTeam();
+  }, []);
   const milestones = [
     {
       year: "1998",
@@ -184,59 +216,51 @@ const About = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="text-center">
-              <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4">
-                <img 
-                  src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=400&auto=format&fit=crop" 
-                  alt="Team Member" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="font-serif text-xl font-semibold mb-1">Rishabh Jain</h3>
-              <p className="text-gold-dark mb-2">Managing Director</p>
-              <p className="text-stone-600 text-sm">Overseeing all operations with 15+ years of industry expertise</p>
+          {loadingTeam ? (
+            <div className="flex justify-center py-10">
+              <Loader2 className="w-8 h-8 animate-spin text-gold-dark" />
             </div>
-            
-            <div className="text-center">
-              <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4">
-                <img 
-                  src="https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=400&auto=format&fit=crop" 
-                  alt="Team Member" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="font-serif text-xl font-semibold mb-1">Priya Sharma</h3>
-              <p className="text-gold-dark mb-2">Head of Procurement</p>
-              <p className="text-stone-600 text-sm">Sourcing the finest stones from around the globe</p>
+          ) : teamMembers.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              {teamMembers.map((member) => (
+                <div key={member.id} className="text-center">
+                  <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4 bg-stone-100">
+                    {member.image ? (
+                      <img
+                        src={member.image}
+                        alt={member.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-stone-400 text-4xl font-bold">
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-serif text-xl font-semibold mb-1">{member.name}</h3>
+                  <p className="text-gold-dark mb-2">{member.role}</p>
+                  {member.description && (
+                    <p className="text-stone-600 text-sm">{member.description}</p>
+                  )}
+                </div>
+              ))}
             </div>
-            
-            <div className="text-center">
-              <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4">
-                <img 
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop" 
-                  alt="Team Member" 
-                  className="w-full h-full object-cover"
-                />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="text-center">
+                <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4">
+                  <img
+                    src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=400&auto=format&fit=crop"
+                    alt="Team Member"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="font-serif text-xl font-semibold mb-1">Rishabh Jain</h3>
+                <p className="text-gold-dark mb-2">Managing Director</p>
+                <p className="text-stone-600 text-sm">Overseeing all operations with 15+ years of industry expertise</p>
               </div>
-              <h3 className="font-serif text-xl font-semibold mb-1">Vikram Singhania</h3>
-              <p className="text-gold-dark mb-2">Technical Director</p>
-              <p className="text-stone-600 text-sm">Expert in stone processing and quality control</p>
             </div>
-            
-            <div className="text-center">
-              <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4">
-                <img 
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=400&auto=format&fit=crop" 
-                  alt="Team Member" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="font-serif text-xl font-semibold mb-1">Ananya Patel</h3>
-              <p className="text-gold-dark mb-2">Client Relations Manager</p>
-              <p className="text-stone-600 text-sm">Ensuring exceptional customer experience</p>
-            </div>
-          </div>
+          )}
         </div>
       </section>
     </div>
