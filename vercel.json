@@ -4,36 +4,16 @@
   "buildCommand": "npm run vercel-build",
   "rewrites": [
     {
-      "source": "/api/products/related",
-      "destination": "/api/products/related"
+      "source": "/api/auth/:path*",
+      "destination": "/api/auth/:path*"
     },
     {
-      "source": "/api/products/:id",
-      "destination": "/api/products/[id]?id=:id"
-    },
-    {
-      "source": "/api/admin/products/:id",
-      "destination": "/api/admin/products?id=:id"
-    },
-    {
-      "source": "/api/admin/gallery/:id",
-      "destination": "/api/admin/gallery?id=:id"
-    },
-    {
-      "source": "/api/admin/testimonials/:id",
-      "destination": "/api/admin/testimonials?id=:id"
-    },
-    {
-      "source": "/api/admin/team/:id",
-      "destination": "/api/admin/team?id=:id"
-    },
-    {
-      "source": "/api/admin/faqs/:id",
-      "destination": "/api/admin/faqs?id=:id"
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin/[[...path]]?path=:path*"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "destination": "/api/public/[[...path]]?path=:path*"
     },
     {
       "source": "/(.*)",
