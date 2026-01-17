@@ -16,19 +16,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const authReq = req as AuthRequest;
     if (!requireAdmin(authReq, res)) return;
 
-    // Get route from path - handles both string and array formats
-    let route = '';
+    // Parse route from the URL pathname
+    // URL format: /api/admin/stats, /api/admin/products, etc.
+    const urlPath = req.url?.split('?')[0] || '';
+    let route = urlPath
+        .replace(/^\/api\/admin\//, '')  // Remove /api/admin/ prefix
+        .replace(/\/$/, '');              // Remove trailing slash
 
-    const pathParam = req.query.path;
-    if (pathParam) {
-        if (Array.isArray(pathParam)) {
-            route = pathParam.join('/');
-        } else if (typeof pathParam === 'string') {
-            route = pathParam;
-        }
-    }
-
-    console.log('Admin API - route:', route, 'query.path:', pathParam, 'url:', req.url);
+    console.log('Admin API - url:', req.url, 'parsed route:', route);
 
     try {
         // Stats
