@@ -16,26 +16,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const authReq = req as AuthRequest;
     if (!requireAdmin(authReq, res)) return;
 
-    // Get route from catch-all path segments
-    // Vercel puts catch-all segments in req.query.path as an array
+    // Get route from path - handles both string and array formats
     let route = '';
 
-    if (req.query.path) {
-        const pathParam = req.query.path;
+    const pathParam = req.query.path;
+    if (pathParam) {
         if (Array.isArray(pathParam)) {
             route = pathParam.join('/');
-        } else {
-            route = pathParam as string;
+        } else if (typeof pathParam === 'string') {
+            route = pathParam;
         }
     }
 
-    // Fallback: parse from URL if path query is empty
-    if (!route) {
-        const url = new URL(req.url || '', `http://${req.headers.host}`);
-        route = url.pathname.replace(/^\/api\/admin\//, '').replace(/\/$/, '');
-    }
-
-    console.log('Admin API - route:', route, 'query.path:', req.query.path, 'url:', req.url);
+    console.log('Admin API - route:', route, 'query.path:', pathParam, 'url:', req.url);
 
     try {
         // Stats
