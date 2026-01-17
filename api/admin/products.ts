@@ -10,6 +10,39 @@ export const config = {
     },
 };
 
+// Helper to upload gallery images
+async function uploadGalleryImages(files: any, fields: any): Promise<string[]> {
+    const galleryUrls: string[] = [];
+
+    // Get existing gallery URLs from data
+    const dataStr = Array.isArray(fields.data) ? fields.data[0] : fields.data;
+    const data = JSON.parse(dataStr as string);
+    const existingGallery = data.existingGallery || [];
+
+    // Add existing gallery URLs first
+    galleryUrls.push(...existingGallery);
+
+    // Get count of new gallery images
+    const galleryCountStr = Array.isArray(fields.galleryCount) ? fields.galleryCount[0] : fields.galleryCount;
+    const galleryCount = parseInt(galleryCountStr as string || '0', 10);
+
+    // Upload new gallery images
+    for (let i = 0; i < galleryCount; i++) {
+        const key = `gallery_${i}`;
+        if (files[key]) {
+            const file = Array.isArray(files[key]) ? files[key][0] : files[key];
+            try {
+                const url = await uploadToCloudinary(file.filepath, 'sm-grnaties/products/gallery');
+                galleryUrls.push(url);
+            } catch (err) {
+                console.error(`Failed to upload gallery image ${i}:`, err);
+            }
+        }
+    }
+
+    return galleryUrls;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
 
@@ -24,11 +57,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const dataStr = Array.isArray(fields.data) ? fields.data[0] : fields.data;
             const productData = JSON.parse(dataStr as string);
 
-            // Upload image to Cloudinary if provided
+            // Remove existingGallery from productData (it's only used for processing)
+            delete productData.existingGallery;
+
+            // Upload main image if provided
             if (files.image) {
                 const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
                 const imageUrl = await uploadToCloudinary(imageFile.filepath, 'sm-grnaties/products');
                 productData.image = imageUrl;
+            }
+
+            // Upload gallery images
+            const galleryUrls = await uploadGalleryImages(files, fields);
+            if (galleryUrls.length > 0) {
+                productData.gallery = galleryUrls;
             }
 
             const product = await prisma.product.create({
@@ -50,12 +92,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const dataStr = Array.isArray(fields.data) ? fields.data[0] : fields.data;
             const productData = JSON.parse(dataStr as string);
 
-            // Upload image to Cloudinary if provided
+            // Remove existingGallery from productData (it's only used for processing)
+            delete productData.existingGallery;
+
+            // Upload main image if provided
             if (files.image) {
                 const imageFile = Array.isArray(files.image) ? files.image[0] : files.image;
                 const imageUrl = await uploadToCloudinary(imageFile.filepath, 'sm-grnaties/products');
                 productData.image = imageUrl;
             }
+
+            // Upload gallery images (this includes existing + new)
+            const galleryUrls = await uploadGalleryImages(files, fields);
+            productData.gallery = galleryUrls;
 
             const product = await prisma.product.update({
                 where: { id },

@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Plus, Pencil, Trash2, Search, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Upload, Image as ImageIcon, GripVertical } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface GalleryImage {
+  url: string;
+  file?: File;
+  isNew?: boolean;
+}
 
 interface ProductSpecification {
   color: string;
@@ -70,7 +76,10 @@ export default function AdminProducts() {
   const [newApplication, setNewApplication] = useState({ name: '', description: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([]);
+  const [newGalleryFiles, setNewGalleryFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const subCategories = {
     Marble: ['Italian Marble', 'Indian Marble', 'Imported Marble'],
@@ -133,6 +142,62 @@ export default function AdminProducts() {
     }
   };
 
+  const handleGalleryImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles: File[] = [];
+
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large. Max 5MB per image.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    // Create preview URLs for new files
+    const newImages: GalleryImage[] = validFiles.map(file => ({
+      url: URL.createObjectURL(file),
+      file,
+      isNew: true,
+    }));
+
+    setGalleryImages(prev => [...prev, ...newImages]);
+    setNewGalleryFiles(prev => [...prev, ...validFiles]);
+
+    // Reset input
+    if (galleryInputRef.current) {
+      galleryInputRef.current.value = '';
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    const imageToRemove = galleryImages[index];
+
+    // Revoke object URL if it's a new image
+    if (imageToRemove.isNew && imageToRemove.url.startsWith('blob:')) {
+      URL.revokeObjectURL(imageToRemove.url);
+    }
+
+    // Remove from gallery images
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
+
+    // If it was a new file, remove from newGalleryFiles too
+    if (imageToRemove.isNew && imageToRemove.file) {
+      setNewGalleryFiles(prev => prev.filter(f => f !== imageToRemove.file));
+    }
+  };
+
+  const moveGalleryImage = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= galleryImages.length) return;
+
+    const newImages = [...galleryImages];
+    const [movedImage] = newImages.splice(fromIndex, 1);
+    newImages.splice(toIndex, 0, movedImage);
+    setGalleryImages(newImages);
+  };
+
   const handleSave = async () => {
     if (!formData.name || !formData.category || !formData.subCategory) {
       toast.error('Please fill in all required fields');
@@ -143,11 +208,29 @@ export default function AdminProducts() {
     try {
       const token = localStorage.getItem('admin_token');
       const formDataToSend = new FormData();
-      formDataToSend.append('data', JSON.stringify(formData));
+
+      // Get existing gallery URLs (non-new images)
+      const existingGalleryUrls = galleryImages
+        .filter(img => !img.isNew)
+        .map(img => img.url);
+
+      // Include existing gallery URLs in data
+      const dataWithGallery = {
+        ...formData,
+        existingGallery: existingGalleryUrls,
+      };
+
+      formDataToSend.append('data', JSON.stringify(dataWithGallery));
 
       if (imageFile) {
         formDataToSend.append('image', imageFile);
       }
+
+      // Append new gallery images
+      newGalleryFiles.forEach((file, index) => {
+        formDataToSend.append(`gallery_${index}`, file);
+      });
+      formDataToSend.append('galleryCount', newGalleryFiles.length.toString());
 
       const url = editingProduct
         ? `${API_URL}/admin/products/${editingProduct.id}`
@@ -168,6 +251,8 @@ export default function AdminProducts() {
       setEditingProduct(null);
       setImageFile(null);
       setImagePreview(null);
+      setGalleryImages([]);
+      setNewGalleryFiles([]);
       fetchProducts();
     } catch (error) {
       toast.error('Failed to save product');
@@ -198,12 +283,21 @@ export default function AdminProducts() {
         applications: apps,
       });
       setImagePreview(product.image || null);
+
+      // Load existing gallery images
+      const existingGallery: GalleryImage[] = (product.gallery || []).map((url: string) => ({
+        url,
+        isNew: false,
+      }));
+      setGalleryImages(existingGallery);
     } else {
       setEditingProduct(null);
       setFormData({ ...defaultFormData, specifications: { ...defaultSpecifications }, applications: [] });
       setImagePreview(null);
+      setGalleryImages([]);
     }
     setImageFile(null);
+    setNewGalleryFiles([]);
     setIsDialogOpen(true);
   };
 
@@ -352,6 +446,98 @@ export default function AdminProducts() {
                     </p>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Gallery Images */}
+            <div className="border rounded-lg p-4">
+              <Label className="mb-2 block">Gallery Images (Multiple views of the product)</Label>
+              <p className="text-xs text-gray-500 mb-3">
+                Add multiple images to show different angles and details. First image will be shown after the main image.
+              </p>
+
+              {/* Gallery grid */}
+              {galleryImages.length > 0 && (
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  {galleryImages.map((img, index) => (
+                    <div
+                      key={`${img.url}-${index}`}
+                      className="relative group border rounded-lg overflow-hidden aspect-square bg-gray-50"
+                    >
+                      <img
+                        src={img.url}
+                        alt={`Gallery ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = 'https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=200&auto=format&fit=crop';
+                        }}
+                      />
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => moveGalleryImage(index, index - 1)}
+                            className="p-1 bg-white rounded text-gray-700 hover:bg-gray-100"
+                            title="Move left"
+                          >
+                            ←
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeGalleryImage(index)}
+                          className="p-1 bg-red-500 rounded text-white hover:bg-red-600"
+                          title="Remove"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        {index < galleryImages.length - 1 && (
+                          <button
+                            type="button"
+                            onClick={() => moveGalleryImage(index, index + 1)}
+                            className="p-1 bg-white rounded text-gray-700 hover:bg-gray-100"
+                            title="Move right"
+                          >
+                            →
+                          </button>
+                        )}
+                      </div>
+                      <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                        {index + 1}
+                      </div>
+                      {img.isNew && (
+                        <div className="absolute top-1 right-1 bg-green-500 text-white text-xs px-1.5 py-0.5 rounded">
+                          New
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Upload button */}
+              <div>
+                <input
+                  type="file"
+                  ref={galleryInputRef}
+                  onChange={handleGalleryImagesChange}
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => galleryInputRef.current?.click()}
+                  className="gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Gallery Images
+                </Button>
+                <span className="text-xs text-gray-500 ml-3">
+                  {galleryImages.length} image{galleryImages.length !== 1 ? 's' : ''} in gallery
+                </span>
               </div>
             </div>
 
