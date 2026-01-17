@@ -6,15 +6,11 @@ import * as nodemailer from 'nodemailer';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (handleCors(req, res)) return;
 
-    // Parse route from URL path (after /api/)
-    const url = new URL(req.url || '', `http://${req.headers.host}`);
-    const pathname = url.pathname;
+    // Get route from catch-all path segments
+    // Vercel puts catch-all segments in req.query.path as an array
+    let route = '';
 
-    // Remove /api/ prefix to get the route
-    let route = pathname.replace(/^\/api\//, '').replace(/\/$/, '');
-
-    // Also check query param as fallback (for rewrites)
-    if (!route && req.query.path) {
+    if (req.query.path) {
         const pathParam = req.query.path;
         if (Array.isArray(pathParam)) {
             route = pathParam.join('/');
@@ -23,7 +19,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
     }
 
-    console.log('Public API - pathname:', pathname, 'route:', route);
+    // Fallback: parse from URL if path query is empty
+    if (!route) {
+        const url = new URL(req.url || '', `http://${req.headers.host}`);
+        route = url.pathname.replace(/^\/api\//, '').replace(/\/$/, '');
+    }
+
+    console.log('Public API - route:', route, 'query.path:', req.query.path, 'url:', req.url);
 
     try {
         // Products routes

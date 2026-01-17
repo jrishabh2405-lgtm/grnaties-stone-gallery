@@ -2,18 +2,29 @@
   "version": 2,
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run vercel-build",
+  "functions": {
+    "api/public/[[...path]].ts": {
+      "maxDuration": 30
+    },
+    "api/admin/[[...path]].ts": {
+      "maxDuration": 30
+    },
+    "api/auth/login.ts": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/auth/(.*)",
-      "destination": "/api/auth/$1"
+      "source": "/api/auth/login",
+      "destination": "/api/auth/login"
     },
     {
-      "source": "/api/admin/(.*)",
-      "destination": "/api/admin/[[...path]]"
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin/:path*"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/public/[[...path]]"
+      "source": "/api/:path*",
+      "destination": "/api/public/:path*"
     },
     {
       "source": "/(.*)",
