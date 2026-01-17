@@ -16,9 +16,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const authReq = req as AuthRequest;
     if (!requireAdmin(authReq, res)) return;
 
-    // Get the path from query params (set by Vercel rewrite)
-    const pathSegments = req.query.path as string[] | undefined;
-    const route = pathSegments ? pathSegments.join('/') : '';
+    // Parse route from URL path (after /api/admin/)
+    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const pathname = url.pathname;
+
+    // Remove /api/admin/ prefix to get the route
+    let route = pathname.replace(/^\/api\/admin\//, '').replace(/\/$/, '');
+
+    // Also check query param as fallback (for rewrites)
+    if (!route && req.query.path) {
+        const pathParam = req.query.path;
+        if (Array.isArray(pathParam)) {
+            route = pathParam.join('/');
+        } else {
+            route = pathParam as string;
+        }
+    }
+
+    console.log('Admin API - pathname:', pathname, 'route:', route);
 
     try {
         // Stats

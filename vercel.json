@@ -4,16 +4,16 @@
   "buildCommand": "npm run vercel-build",
   "rewrites": [
     {
-      "source": "/api/auth/:path*",
-      "destination": "/api/auth/:path*"
+      "source": "/api/auth/(.*)",
+      "destination": "/api/auth/$1"
     },
     {
-      "source": "/api/admin/:path*",
-      "destination": "/api/admin/[[...path]]?path=:path*"
+      "source": "/api/admin/(.*)",
+      "destination": "/api/admin/[[...path]]"
     },
     {
-      "source": "/api/:path*",
-      "destination": "/api/public/[[...path]]?path=:path*"
+      "source": "/api/(.*)",
+      "destination": "/api/public/[[...path]]"
     },
     {
       "source": "/(.*)",
