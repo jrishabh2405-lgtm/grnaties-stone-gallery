@@ -8,12 +8,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         if (req.method === 'GET') {
             // Get all products with optional filters
-            const { category, search, popular, limit } = req.query;
+            const { category, subCategory, search, popular, limit } = req.query;
 
             const where: any = {};
 
             if (category) {
                 where.category = category as string;
+            }
+
+            if (subCategory) {
+                where.subCategory = subCategory as string;
             }
 
             if (popular === 'true') {
@@ -25,6 +29,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     { name: { contains: search as string, mode: 'insensitive' } },
                     { description: { contains: search as string, mode: 'insensitive' } },
                     { category: { contains: search as string, mode: 'insensitive' } },
+                    { subCategory: { contains: search as string, mode: 'insensitive' } },
+                    { origin: { contains: search as string, mode: 'insensitive' } },
                 ];
             }
 

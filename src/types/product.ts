@@ -12,7 +12,7 @@ export interface ProductApplication {
 }
 
 export interface Product {
-  id: number;
+  id: string;
   name: string;
   category: string;
   subCategory: string;
@@ -24,4 +24,6 @@ export interface Product {
   applications: ProductApplication[];
   isImported: boolean;
   isPopular?: boolean;
+  inStock?: boolean;
+  price?: number;
 }

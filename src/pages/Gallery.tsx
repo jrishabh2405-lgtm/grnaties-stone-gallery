@@ -1,90 +1,23 @@
+import React, { useState, useEffect } from "react";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-import React, { useState } from "react";
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 interface GalleryItem {
-  id: number;
+  id: string;
   title: string;
+  description: string;
   category: string;
   image: string;
+  location?: string;
+  featured: boolean;
 }
 
 const Gallery = () => {
   const [activeFilter, setActiveFilter] = useState("all");
-
-  const galleryItems: GalleryItem[] = [
-    {
-      id: 1,
-      title: "Luxury Villa Flooring",
-      category: "flooring",
-      image: "https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      title: "Modern Kitchen Countertop",
-      category: "countertops",
-      image: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      title: "Hotel Lobby Design",
-      category: "commercial",
-      image: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 4,
-      title: "Bathroom Vanity",
-      category: "bathrooms",
-      image: "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 5,
-      title: "Office Reception Desk",
-      category: "commercial",
-      image: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 6,
-      title: "Elegant Staircase",
-      category: "flooring",
-      image: "https://images.unsplash.com/photo-1531835551805-16d864c8d311?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 7,
-      title: "Marble Wall Cladding",
-      category: "wall",
-      image: "https://images.unsplash.com/photo-1536895058696-a69b1c7ba34f?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 8,
-      title: "Residential Kitchen Island",
-      category: "countertops",
-      image: "https://images.unsplash.com/photo-1556911220-bda9da8a518b?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 9,
-      title: "Spa Bathroom Design",
-      category: "bathrooms",
-      image: "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 10,
-      title: "Restaurant Tabletops",
-      category: "commercial",
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 11,
-      title: "Luxury Bathroom Flooring",
-      category: "bathrooms",
-      image: "https://images.unsplash.com/photo-1630699144339-420f59eb6edf?q=80&w=600&auto=format&fit=crop",
-    },
-    {
-      id: 12,
-      title: "Feature Wall Design",
-      category: "wall",
-      image: "https://images.unsplash.com/photo-1615971677499-5467cbab01c0?q=80&w=600&auto=format&fit=crop",
-    },
-  ];
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const filters = [
     { id: "all", label: "All Projects" },
@@ -95,10 +28,31 @@ const Gallery = () => {
     { id: "commercial", label: "Commercial" },
   ];
 
+  useEffect(() => {
+    const fetchGallery = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/gallery`);
+        if (!response.ok) throw new Error('Failed to fetch gallery');
+        const data = await response.json();
+        setGalleryItems(data);
+      } catch (error) {
+        console.error('Error fetching gallery:', error);
+        toast.error('Failed to load gallery');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGallery();
+  }, []);
+
   const filteredItems =
     activeFilter === "all"
       ? galleryItems
       : galleryItems.filter((item) => item.category === activeFilter);
+
+  const featuredItems = galleryItems.filter((item) => item.featured);
 
   return (
     <div>
@@ -138,104 +92,100 @@ const Gallery = () => {
       {/* Gallery Grid */}
       <section className="section-padding">
         <div className="container-custom">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className="marble-card group overflow-hidden"
-              >
-                <div className="relative h-64">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
-                    <div className="text-white text-center p-4">
-                      <span className="text-sm uppercase tracking-wider bg-gold-dark px-2 py-1 rounded">
-                        {filters.find(f => f.id === item.category)?.label || item.category}
-                      </span>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-gold-dark" />
+              <span className="ml-3 text-stone-600">Loading gallery...</span>
+            </div>
+          ) : filteredItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="marble-card group overflow-hidden"
+                >
+                  <div className="relative h-64">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                      <div className="text-white text-center p-4">
+                        <span className="text-sm uppercase tracking-wider bg-gold-dark px-2 py-1 rounded">
+                          {filters.find(f => f.id === item.category)?.label || item.category}
+                        </span>
+                      </div>
                     </div>
                   </div>
+                  <div className="p-4">
+                    <h3 className="font-serif text-lg font-semibold">
+                      {item.title}
+                    </h3>
+                    {item.location && (
+                      <p className="text-stone-500 text-sm mt-1">{item.location}</p>
+                    )}
+                  </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-serif text-lg font-semibold">
-                    {item.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <h3 className="text-xl font-semibold mb-2">No gallery items yet</h3>
+              <p className="text-stone-600">
+                Gallery items will be added soon. Check back later!
+              </p>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Project Showcase */}
-      <section className="section-padding bg-stone-50">
-        <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="section-title">Featured Projects</h2>
-            <p className="section-subtitle">
-              Highlighting some of our exceptional installations
-            </p>
-          </div>
+      {/* Featured Projects - Show only if we have featured items */}
+      {featuredItems.length > 0 && (
+        <section className="section-padding bg-stone-50">
+          <div className="container-custom">
+            <div className="text-center mb-12">
+              <h2 className="section-title">Featured Projects</h2>
+              <p className="section-subtitle">
+                Highlighting some of our exceptional installations
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-white rounded-lg overflow-hidden shadow-md">
-              <div className="h-80">
-                <img
-                  src="https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=1000&auto=format&fit=crop"
-                  alt="Luxury Villa Project"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="heading-md mb-3">Luxury Villa Makeover</h3>
-                <p className="text-stone-600 mb-4">
-                  Complete transformation of a 5,000 sq ft villa with Italian marble flooring, custom-cut granite countertops, and decorative wall cladding.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                    Italian Marble
-                  </span>
-                  <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                    Imported Granite
-                  </span>
-                  <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                    Wall Cladding
-                  </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {featuredItems.slice(0, 2).map((item) => (
+                <div key={item.id} className="bg-white rounded-lg overflow-hidden shadow-md">
+                  <div className="h-80">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
+                      }}
+                    />
+                  </div>
+                  <div className="p-6">
+                    <h3 className="heading-md mb-3">{item.title}</h3>
+                    <p className="text-stone-600 mb-4">
+                      {item.description}
+                    </p>
+                    {item.location && (
+                      <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
+                        {item.location}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-lg overflow-hidden shadow-md">
-              <div className="h-80">
-                <img
-                  src="https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?q=80&w=1000&auto=format&fit=crop"
-                  alt="Hotel Project"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="heading-md mb-3">Five-Star Hotel Lobby</h3>
-                <p className="text-stone-600 mb-4">
-                  Exquisite marble flooring and feature wall installation for a luxury hotel lobby, creating a stunning first impression for guests.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                    Statuario Marble
-                  </span>
-                  <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                    Feature Wall
-                  </span>
-                  <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                    Commercial Project
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Client Testimonials */}
       <section className="section-padding">
@@ -260,7 +210,7 @@ const Gallery = () => {
                 <p className="text-sm text-stone-500">Homeowner, Delhi</p>
               </div>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center mb-4">
                 <div className="text-gold-dark text-2xl mr-2">★★★★★</div>
@@ -273,7 +223,7 @@ const Gallery = () => {
                 <p className="text-sm text-stone-500">Interior Designer, Mumbai</p>
               </div>
             </div>
-            
+
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="flex items-center mb-4">
                 <div className="text-gold-dark text-2xl mr-2">★★★★★</div>

@@ -1,55 +1,73 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Search, Filter, CheckCircle } from "lucide-react";
-import { products } from "@/data/products";
+import { Search, CheckCircle, Loader2 } from "lucide-react";
 import { Product } from "@/types/product";
 import { toast } from "sonner";
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const Products = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
-  
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState(queryParams.get("category") || "all");
   const [activeSubCategory, setActiveSubCategory] = useState(queryParams.get("subCategory") || "");
   const [searchTerm, setSearchTerm] = useState(queryParams.get("search") || "");
-  const [imagesLoading, setImagesLoading] = useState<Record<number, boolean>>({});
-  
+  const [imagesLoading, setImagesLoading] = useState<Record<string, boolean>>({});
+
   const categories = ["all", "Marble", "Granite"];
-  
+
   const subCategories = {
     Marble: ["Italian Marble", "Indian Marble", "Imported Marble"],
     Granite: ["Indian Granite", "Imported Granite"],
   };
 
+  // Fetch products from API
   useEffect(() => {
-    // Initialize loading state for all products
-    const initialLoadingState: Record<number, boolean> = {};
-    products.forEach(product => {
-      initialLoadingState[product.id] = true;
-    });
-    setImagesLoading(initialLoadingState);
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`${API_URL}/products`);
+        if (!response.ok) throw new Error('Failed to fetch products');
+        const data = await response.json();
+        setProducts(data);
 
-    // Preload product images
-    products.forEach(product => {
-      const img = new Image();
-      img.src = product.image;
-      img.onload = () => {
-        setImagesLoading(prev => ({ ...prev, [product.id]: false }));
-      };
-      img.onerror = () => {
-        console.error(`Failed to load image for ${product.name}`);
-        setImagesLoading(prev => ({ ...prev, [product.id]: false }));
-      };
-    });
+        // Initialize loading state for all fetched products
+        const initialLoadingState: Record<string, boolean> = {};
+        data.forEach((product: Product) => {
+          initialLoadingState[product.id] = true;
+        });
+        setImagesLoading(initialLoadingState);
+
+        // Preload product images
+        data.forEach((product: Product) => {
+          const img = new Image();
+          img.src = product.image;
+          img.onload = () => {
+            setImagesLoading(prev => ({ ...prev, [product.id]: false }));
+          };
+          img.onerror = () => {
+            console.error(`Failed to load image for ${product.name}`);
+            setImagesLoading(prev => ({ ...prev, [product.id]: false }));
+          };
+        });
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        toast.error('Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, product: Product) => {
     const target = e.target as HTMLImageElement;
     console.log(`Product image failed to load for ${product.name}, replacing with fallback`);
-    toast.error(`Couldn't load image for ${product.name}`, {
-      description: "Using fallback image instead"
-    });
     target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
   };
 
@@ -65,7 +83,7 @@ const Products = () => {
     if (searchTerm) {
       params.set("search", searchTerm);
     }
-    
+
     const newUrl = params.toString() ? `?${params.toString()}` : "";
     navigate(`/products${newUrl}`, { replace: true });
   }, [activeCategory, activeSubCategory, searchTerm, navigate]);
@@ -82,7 +100,8 @@ const Products = () => {
   const filteredProducts = products.filter((product) => {
     const matchesCategory = activeCategory === "all" || product.category === activeCategory;
     const matchesSubCategory = !activeSubCategory || product.subCategory === activeSubCategory;
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const matchesSearch = !searchTerm ||
+                          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.subCategory.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.origin.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           product.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -161,63 +180,72 @@ const Products = () => {
       {/* Products Grid */}
       <section className="section-padding bg-stone-50">
         <div className="container-custom">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <Link 
-                  to={`/products/${product.id}`} 
-                  key={product.id} 
-                  className="marble-card group cursor-pointer bg-white shadow-sm hover:shadow-md transition-all"
-                >
-                  <div className="h-64 overflow-hidden relative">
-                    {imagesLoading[product.id] && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-stone-100">
-                        <div className="animate-pulse flex flex-col items-center">
-                          <div className="rounded-md bg-stone-200 h-24 w-24 mb-2"></div>
-                          <span className="text-xs text-stone-400">Loading...</span>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 animate-spin text-gold-dark" />
+              <span className="ml-3 text-stone-600">Loading products...</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <Link
+                    to={`/products/${product.id}`}
+                    key={product.id}
+                    className="marble-card group cursor-pointer bg-white shadow-sm hover:shadow-md transition-all"
+                  >
+                    <div className="h-64 overflow-hidden relative">
+                      {imagesLoading[product.id] && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-stone-100">
+                          <div className="animate-pulse flex flex-col items-center">
+                            <div className="rounded-md bg-stone-200 h-24 w-24 mb-2"></div>
+                            <span className="text-xs text-stone-400">Loading...</span>
+                          </div>
                         </div>
+                      )}
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${
+                          imagesLoading[product.id] ? 'opacity-0' : 'opacity-100'
+                        }`}
+                        onLoad={() => setImagesLoading(prev => ({ ...prev, [product.id]: false }))}
+                        onError={(e) => handleImageError(e, product)}
+                      />
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-sm text-gold-dark font-medium">
+                          {product.subCategory}
+                        </span>
+                        <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
+                          {product.origin}
+                        </span>
                       </div>
-                    )}
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className={`w-full h-full object-cover group-hover:scale-105 transition duration-500 ${
-                        imagesLoading[product.id] ? 'opacity-0' : 'opacity-100'
-                      }`}
-                      onLoad={() => setImagesLoading(prev => ({ ...prev, [product.id]: false }))}
-                      onError={(e) => handleImageError(e, product)}
-                    />
-                  </div>
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-sm text-gold-dark font-medium">
-                        {product.subCategory}
-                      </span>
-                      <span className="text-xs bg-stone-100 px-2 py-1 rounded text-stone-600">
-                        {product.origin}
-                      </span>
+                      <h3 className="font-serif text-lg font-semibold">
+                        {product.name}
+                      </h3>
+                      <p className="text-stone-600 text-sm mt-2 line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="mt-4 text-gold-dark font-medium text-sm hover:text-gold-dark/80">
+                        View Details
+                      </div>
                     </div>
-                    <h3 className="font-serif text-lg font-semibold">
-                      {product.name}
-                    </h3>
-                    <p className="text-stone-600 text-sm mt-2 line-clamp-2">
-                      {product.description}
-                    </p>
-                    <div className="mt-4 text-gold-dark font-medium text-sm hover:text-gold-dark/80">
-                      View Details
-                    </div>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="col-span-full text-center py-10">
-                <h3 className="text-xl font-semibold mb-2">No products found</h3>
-                <p className="text-stone-600">
-                  Try adjusting your filters or search terms
-                </p>
-              </div>
-            )}
-          </div>
+                  </Link>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-10">
+                  <h3 className="text-xl font-semibold mb-2">No products found</h3>
+                  <p className="text-stone-600">
+                    {products.length === 0
+                      ? "Products will be added soon. Check back later!"
+                      : "Try adjusting your filters or search terms"}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </section>
 
@@ -245,7 +273,7 @@ const Products = () => {
                     "https://images.unsplash.com/photo-1596731498067-13ae669a3fb3?q=80&w=800&auto=format&fit=crop",
                     "https://images.unsplash.com/photo-1617975179011-8935d5e533b7?q=80&w=800&auto=format&fit=crop"
                   ];
-                  
+
                   return (
                     <div
                       key={subCategory}
@@ -295,7 +323,7 @@ const Products = () => {
                     "https://images.unsplash.com/photo-1566996533071-2c578080c06e?q=80&w=800&auto=format&fit=crop",
                     "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop"
                   ];
-                  
+
                   return (
                     <div
                       key={subCategory}

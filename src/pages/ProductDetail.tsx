@@ -1,50 +1,81 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
-import { getProductById, getRelatedProducts } from "@/data/products";
-import { Product } from "@/types/product";
-import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, ArrowRight, CheckCircle, Loader2 } from "lucide-react";
+import { Product, ProductSpecification, ProductApplication } from "@/types/product";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
-  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
-  
+
   useEffect(() => {
-    if (id) {
-      const productData = getProductById(parseInt(id));
-      setProduct(productData);
-      setImageLoaded(false);
-      
-      if (productData) {
-        setRelatedProducts(getRelatedProducts(productData));
-        setActiveImageIndex(0); // Reset image index when product changes
-        
+    const fetchProduct = async () => {
+      if (!id) return;
+
+      setLoading(true);
+      try {
+        // Fetch product details
+        const productRes = await fetch(`${API_URL}/products/${id}`);
+        if (!productRes.ok) {
+          if (productRes.status === 404) {
+            setProduct(null);
+            return;
+          }
+          throw new Error('Failed to fetch product');
+        }
+        const productData = await productRes.json();
+        setProduct(productData);
+        setActiveImageIndex(0);
+        setImageLoaded(false);
+
         // Preload the main image
         const img = new Image();
         img.src = productData.image;
         img.onload = () => setImageLoaded(true);
         img.onerror = () => {
           console.error(`Failed to load main image for ${productData.name}`);
-          setImageLoaded(true); // Set as loaded anyway so the fallback can show
+          setImageLoaded(true);
         };
+
+        // Fetch related products
+        const relatedRes = await fetch(`${API_URL}/products/related?id=${id}`);
+        if (relatedRes.ok) {
+          const relatedData = await relatedRes.json();
+          setRelatedProducts(relatedData);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        toast.error('Failed to load product details');
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    fetchProduct();
   }, [id]);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, source: string) => {
     const target = e.target as HTMLImageElement;
     const productName = product?.name || "Unknown product";
     console.log(`Image failed to load: ${source} for ${productName}, replacing with fallback`);
-    toast.error(`Image failed to load for ${productName}`, {
-      description: "Using fallback image instead"
-    });
     target.src = "https://images.unsplash.com/photo-1559553156-2e97137af16f?q=80&w=800&auto=format&fit=crop";
   };
+
+  if (loading) {
+    return (
+      <div className="container-custom py-20 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-gold-dark" />
+        <span className="ml-3 text-stone-600">Loading product details...</span>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -63,7 +94,6 @@ const ProductDetail = () => {
       setActiveImageIndex(activeImageIndex + 1);
       setImageLoaded(false);
 
-      // Preload the next image
       const img = new Image();
       img.src = product.gallery[activeImageIndex + 1];
       img.onload = () => setImageLoaded(true);
@@ -75,11 +105,10 @@ const ProductDetail = () => {
   };
 
   const handlePrevImage = () => {
-    if (activeImageIndex > 0) {
+    if (product.gallery && activeImageIndex > 0) {
       setActiveImageIndex(activeImageIndex - 1);
       setImageLoaded(false);
 
-      // Preload the previous image
       const img = new Image();
       img.src = product.gallery[activeImageIndex - 1];
       img.onload = () => setImageLoaded(true);
@@ -91,9 +120,18 @@ const ProductDetail = () => {
   };
 
   // Use main image if no gallery or as fallback
-  const currentImage = product.gallery && product.gallery.length > 0 
-    ? product.gallery[activeImageIndex] 
+  const currentImage = product.gallery && product.gallery.length > 0
+    ? product.gallery[activeImageIndex]
     : product.image;
+
+  // Parse specifications and applications from JSON if they're stored as such
+  const specifications: ProductSpecification = typeof product.specifications === 'string'
+    ? JSON.parse(product.specifications)
+    : product.specifications || { color: '', finish: [], thickness: [], sizes: [] };
+
+  const applications: ProductApplication[] = typeof product.applications === 'string'
+    ? JSON.parse(product.applications)
+    : product.applications || [];
 
   return (
     <div>
@@ -105,8 +143,8 @@ const ProductDetail = () => {
             <span className="mx-2">/</span>
             <Link to="/products" className="hover:text-gold-dark">Products</Link>
             <span className="mx-2">/</span>
-            <Link 
-              to={`/products?category=${product.category}`} 
+            <Link
+              to={`/products?category=${product.category}`}
               className="hover:text-gold-dark"
             >
               {product.category}
@@ -164,7 +202,7 @@ const ProductDetail = () => {
                   </>
                 )}
               </div>
-              
+
               {/* Thumbnail Gallery */}
               {product.gallery && product.gallery.length > 1 && (
                 <div className="flex space-x-2 overflow-x-auto pb-2">
@@ -209,69 +247,83 @@ const ProductDetail = () => {
               </div>
 
               {/* Specifications & Applications */}
-              <Tabs defaultValue="specifications" className="mb-8">
-                <TabsList className="grid grid-cols-2 mb-6">
-                  <TabsTrigger value="specifications">Specifications</TabsTrigger>
-                  <TabsTrigger value="applications">Applications</TabsTrigger>
-                </TabsList>
-                <TabsContent value="specifications" className="bg-stone-50 rounded-lg p-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-semibold text-stone-500 mb-1">COLOR</h3>
-                      <p className="font-medium">{product.specifications.color}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-semibold text-stone-500 mb-1">AVAILABLE FINISHES</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {product.specifications.finish.map((finish, index) => (
-                          <span key={index} className="px-3 py-1 bg-white border border-stone-200 rounded-md text-sm">
-                            {finish}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-semibold text-stone-500 mb-1">AVAILABLE THICKNESS</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {product.specifications.thickness.map((thickness, index) => (
-                          <span key={index} className="px-3 py-1 bg-white border border-stone-200 rounded-md text-sm">
-                            {thickness}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-semibold text-stone-500 mb-1">STANDARD SIZES</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {product.specifications.sizes.map((size, index) => (
-                          <span key={index} className="px-3 py-1 bg-white border border-stone-200 rounded-md text-sm">
-                            {size}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-                
-                <TabsContent value="applications" className="bg-stone-50 rounded-lg p-6">
-                  <div className="space-y-4">
-                    {product.applications.map((application, index) => (
-                      <div key={index} className="flex gap-3">
-                        <div className="flex-shrink-0 text-gold-dark mt-1">
-                          <CheckCircle size={18} />
-                        </div>
+              {(specifications.color || applications.length > 0) && (
+                <Tabs defaultValue="specifications" className="mb-8">
+                  <TabsList className="grid grid-cols-2 mb-6">
+                    <TabsTrigger value="specifications">Specifications</TabsTrigger>
+                    <TabsTrigger value="applications">Applications</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="specifications" className="bg-stone-50 rounded-lg p-6">
+                    <div className="space-y-4">
+                      {specifications.color && (
                         <div>
-                          <h3 className="font-medium mb-1">{application.name}</h3>
-                          <p className="text-stone-600 text-sm">{application.description}</p>
+                          <h3 className="text-sm font-semibold text-stone-500 mb-1">COLOR</h3>
+                          <p className="font-medium">{specifications.color}</p>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
+                      )}
+
+                      {specifications.finish && specifications.finish.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-stone-500 mb-1">AVAILABLE FINISHES</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {specifications.finish.map((finish, index) => (
+                              <span key={index} className="px-3 py-1 bg-white border border-stone-200 rounded-md text-sm">
+                                {finish}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {specifications.thickness && specifications.thickness.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-stone-500 mb-1">AVAILABLE THICKNESS</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {specifications.thickness.map((thickness, index) => (
+                              <span key={index} className="px-3 py-1 bg-white border border-stone-200 rounded-md text-sm">
+                                {thickness}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {specifications.sizes && specifications.sizes.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-semibold text-stone-500 mb-1">STANDARD SIZES</h3>
+                          <div className="flex flex-wrap gap-2">
+                            {specifications.sizes.map((size, index) => (
+                              <span key={index} className="px-3 py-1 bg-white border border-stone-200 rounded-md text-sm">
+                                {size}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="applications" className="bg-stone-50 rounded-lg p-6">
+                    <div className="space-y-4">
+                      {applications.length > 0 ? (
+                        applications.map((application, index) => (
+                          <div key={index} className="flex gap-3">
+                            <div className="flex-shrink-0 text-gold-dark mt-1">
+                              <CheckCircle size={18} />
+                            </div>
+                            <div>
+                              <h3 className="font-medium mb-1">{application.name}</h3>
+                              <p className="text-stone-600 text-sm">{application.description}</p>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-stone-500">No application information available.</p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              )}
 
               {/* Call To Action */}
               <div className="bg-marble-light p-6 rounded-lg mb-8">
@@ -306,9 +358,9 @@ const ProductDetail = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
-                <Link 
-                  to={`/products/${relatedProduct.id}`} 
-                  key={relatedProduct.id} 
+                <Link
+                  to={`/products/${relatedProduct.id}`}
+                  key={relatedProduct.id}
                   className="marble-card group bg-white shadow-sm hover:shadow-md transition-all"
                 >
                   <div className="h-64 overflow-hidden">
