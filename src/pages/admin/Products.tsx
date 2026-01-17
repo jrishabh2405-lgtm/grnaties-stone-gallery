@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { Plus, Pencil, Trash2, Search, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Search, X, Upload, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -59,6 +59,7 @@ const defaultFormData: FormData = {
 export default function AdminProducts() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -67,6 +68,9 @@ export default function AdminProducts() {
   const [newThickness, setNewThickness] = useState('');
   const [newSize, setNewSize] = useState('');
   const [newApplication, setNewApplication] = useState({ name: '', description: '' });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const subCategories = {
     Marble: ['Italian Marble', 'Indian Marble', 'Imported Marble'],
@@ -113,11 +117,37 @@ export default function AdminProducts() {
     }
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size should be less than 5MB');
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSave = async () => {
+    if (!formData.name || !formData.category || !formData.subCategory) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setSaving(true);
     try {
       const token = localStorage.getItem('admin_token');
       const formDataToSend = new FormData();
       formDataToSend.append('data', JSON.stringify(formData));
+
+      if (imageFile) {
+        formDataToSend.append('image', imageFile);
+      }
 
       const url = editingProduct
         ? `${API_URL}/admin/products/${editingProduct.id}`
@@ -136,9 +166,13 @@ export default function AdminProducts() {
       toast.success(`Product ${editingProduct ? 'updated' : 'created'} successfully`);
       setIsDialogOpen(false);
       setEditingProduct(null);
+      setImageFile(null);
+      setImagePreview(null);
       fetchProducts();
     } catch (error) {
       toast.error('Failed to save product');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -163,10 +197,13 @@ export default function AdminProducts() {
         specifications: specs,
         applications: apps,
       });
+      setImagePreview(product.image || null);
     } else {
       setEditingProduct(null);
       setFormData({ ...defaultFormData, specifications: { ...defaultSpecifications }, applications: [] });
+      setImagePreview(null);
     }
+    setImageFile(null);
     setIsDialogOpen(true);
   };
 
@@ -275,6 +312,49 @@ export default function AdminProducts() {
             <DialogTitle>{editingProduct ? 'Edit' : 'Add'} Product</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
+            {/* Image Upload */}
+            <div className="border rounded-lg p-4">
+              <Label className="mb-2 block">Product Image</Label>
+              <div className="flex items-start gap-4">
+                <div className="w-40 h-40 border-2 border-dashed rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="text-center text-gray-400">
+                      <ImageIcon className="w-8 h-8 mx-auto mb-2" />
+                      <span className="text-xs">No image</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="gap-2"
+                  >
+                    <Upload className="w-4 h-4" />
+                    {imagePreview ? 'Change Image' : 'Upload Image'}
+                  </Button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Recommended: 800x800px, Max 5MB
+                  </p>
+                  {imageFile && (
+                    <p className="text-xs text-green-600 mt-1">
+                      New image selected: {imageFile.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Basic Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -485,8 +565,8 @@ export default function AdminProducts() {
               </label>
             </div>
 
-            <Button onClick={handleSave} className="w-full">
-              {editingProduct ? 'Update' : 'Create'} Product
+            <Button onClick={handleSave} className="w-full" disabled={saving}>
+              {saving ? 'Saving...' : (editingProduct ? 'Update' : 'Create')} Product
             </Button>
           </div>
         </DialogContent>
