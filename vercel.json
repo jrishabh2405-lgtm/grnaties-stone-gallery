@@ -2,29 +2,58 @@
   "version": 2,
   "installCommand": "npm install --include=dev",
   "buildCommand": "npm run vercel-build",
-  "functions": {
-    "api/public/[[...path]].ts": {
-      "maxDuration": 30
-    },
-    "api/admin/[[...path]].ts": {
-      "maxDuration": 30
-    },
-    "api/auth/login.ts": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
-      "source": "/api/auth/login",
-      "destination": "/api/auth/login"
+      "source": "/api/products/related/:id",
+      "destination": "/api/products?id=:id&related=true"
     },
     {
-      "source": "/api/admin/:path*",
-      "destination": "/api/admin/:path*"
+      "source": "/api/products/:id",
+      "destination": "/api/products?id=:id"
+    },
+    {
+      "source": "/api/gallery/:id",
+      "destination": "/api/gallery?id=:id"
+    },
+    {
+      "source": "/api/testimonials",
+      "destination": "/api/content?type=testimonials"
+    },
+    {
+      "source": "/api/team",
+      "destination": "/api/content?type=team"
+    },
+    {
+      "source": "/api/faqs",
+      "destination": "/api/content?type=faqs"
+    },
+    {
+      "source": "/api/admin/products/:id",
+      "destination": "/api/admin/products?id=:id"
+    },
+    {
+      "source": "/api/admin/gallery/:id",
+      "destination": "/api/admin/gallery?id=:id"
+    },
+    {
+      "source": "/api/admin/contacts/:id",
+      "destination": "/api/admin/contacts?id=:id"
+    },
+    {
+      "source": "/api/admin/testimonials/:id",
+      "destination": "/api/admin/testimonials?id=:id"
+    },
+    {
+      "source": "/api/admin/team/:id",
+      "destination": "/api/admin/team?id=:id"
+    },
+    {
+      "source": "/api/admin/faqs/:id",
+      "destination": "/api/admin/faqs?id=:id"
     },
     {
       "source": "/api/:path*",
-      "destination": "/api/public/:path*"
+      "destination": "/api/:path*"
     },
     {
       "source": "/(.*)",
