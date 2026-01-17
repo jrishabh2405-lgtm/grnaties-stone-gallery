@@ -4,6 +4,22 @@
   "buildCommand": "npm run vercel-build",
   "rewrites": [
     {
+      "source": "/api/products/related",
+      "destination": "/api/products/related"
+    },
+    {
+      "source": "/api/products/:id",
+      "destination": "/api/products/[id]?id=:id"
+    },
+    {
+      "source": "/api/admin/products/:id",
+      "destination": "/api/admin/products?id=:id"
+    },
+    {
+      "source": "/api/admin/gallery/:id",
+      "destination": "/api/admin/gallery?id=:id"
+    },
+    {
       "source": "/api/:path*",
       "destination": "/api/:path*"
     },
