@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
@@ -29,6 +29,7 @@ const Gallery = () => {
   const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [testimonialIndex, setTestimonialIndex] = useState(0);
 
   const filters = [
     { id: "all", label: "All Projects" },
@@ -74,6 +75,23 @@ const Gallery = () => {
       : galleryItems.filter((item) => item.category === activeFilter);
 
   const featuredItems = galleryItems.filter((item) => item.featured);
+
+  // Testimonial carousel controls
+  const testimonialsPerPage = 3;
+  const maxIndex = Math.max(0, testimonials.length - testimonialsPerPage);
+
+  const handlePrevTestimonial = () => {
+    setTestimonialIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNextTestimonial = () => {
+    setTestimonialIndex((prev) => Math.min(maxIndex, prev + 1));
+  };
+
+  const visibleTestimonials = testimonials.slice(
+    testimonialIndex,
+    testimonialIndex + testimonialsPerPage
+  );
 
   return (
     <div>
@@ -219,36 +237,79 @@ const Gallery = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonials.slice(0, 3).map((testimonial) => (
-                <div key={testimonial.id} className="bg-white p-6 rounded-lg shadow-md">
-                  <div className="flex items-center mb-4">
-                    <div className="text-gold-dark text-2xl mr-2">
-                      {'★'.repeat(testimonial.rating)}{'☆'.repeat(5 - testimonial.rating)}
+            <div className="relative">
+              {/* Navigation Arrows */}
+              {testimonials.length > testimonialsPerPage && (
+                <>
+                  <button
+                    onClick={handlePrevTestimonial}
+                    disabled={testimonialIndex === 0}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    aria-label="Previous testimonials"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-stone-800" />
+                  </button>
+                  <button
+                    onClick={handleNextTestimonial}
+                    disabled={testimonialIndex >= maxIndex}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    aria-label="Next testimonials"
+                  >
+                    <ChevronRight className="w-6 h-6 text-stone-800" />
+                  </button>
+                </>
+              )}
+
+              {/* Testimonials Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {visibleTestimonials.map((testimonial) => (
+                  <div key={testimonial.id} className="bg-white p-6 rounded-lg shadow-md">
+                    <div className="flex items-center mb-4">
+                      <div className="text-gold-dark text-2xl mr-2">
+                        {'★'.repeat(testimonial.rating)}{'☆'.repeat(5 - testimonial.rating)}
+                      </div>
                     </div>
-                  </div>
-                  <blockquote className="text-stone-600 italic mb-4">
-                    "{testimonial.content}"
-                  </blockquote>
-                  <div className="flex items-center gap-3">
-                    {testimonial.image && (
-                      <img
-                        src={testimonial.image}
-                        alt={testimonial.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                    )}
-                    <div>
-                      <p className="font-medium">{testimonial.name}</p>
-                      {(testimonial.role || testimonial.company) && (
-                        <p className="text-sm text-stone-500">
-                          {testimonial.role}{testimonial.role && testimonial.company ? ', ' : ''}{testimonial.company}
-                        </p>
+                    <blockquote className="text-stone-600 italic mb-4">
+                      "{testimonial.content}"
+                    </blockquote>
+                    <div className="flex items-center gap-3">
+                      {testimonial.image && (
+                        <img
+                          src={testimonial.image}
+                          alt={testimonial.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
                       )}
+                      <div>
+                        <p className="font-medium">{testimonial.name}</p>
+                        {(testimonial.role || testimonial.company) && (
+                          <p className="text-sm text-stone-500">
+                            {testimonial.role}{testimonial.role && testimonial.company ? ', ' : ''}{testimonial.company}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Pagination Dots */}
+              {testimonials.length > testimonialsPerPage && (
+                <div className="flex justify-center gap-2 mt-8">
+                  {Array.from({ length: maxIndex + 1 }).map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setTestimonialIndex(idx)}
+                      className={`w-2.5 h-2.5 rounded-full transition-all ${
+                        testimonialIndex === idx
+                          ? 'bg-gold-dark w-8'
+                          : 'bg-stone-300 hover:bg-stone-400'
+                      }`}
+                      aria-label={`Go to testimonial page ${idx + 1}`}
+                    />
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>
