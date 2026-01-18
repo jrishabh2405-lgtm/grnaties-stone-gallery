@@ -1,13 +1,45 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { products } from "@/data/products";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
-import { ArrowRight, Award, Eye } from "lucide-react";
+import { ArrowRight, Award, Eye, Loader2 } from "lucide-react";
+
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  subCategory: string;
+  origin: string;
+  image: string;
+  isPopular: boolean;
+}
 
 const FeaturedProducts: React.FC = () => {
-  const featuredProducts = products.filter(product => product.isPopular);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch(`${API_URL}/products?popular=true&limit=8`);
+        if (response.ok) {
+          const data = await response.json();
+          setFeaturedProducts(data);
+        } else {
+          console.error('Failed to fetch featured products');
+        }
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>, productName: string) => {
     const target = e.target as HTMLImageElement;
@@ -38,6 +70,23 @@ const FeaturedProducts: React.FC = () => {
       },
     },
   };
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-gradient-to-b from-marble-light to-white">
+        <div className="container-custom">
+          <div className="flex items-center justify-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-gold-dark" />
+            <span className="ml-3 text-stone-600">Loading featured products...</span>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (featuredProducts.length === 0) {
+    return null;
+  }
 
   return (
     <section className="section-padding bg-gradient-to-b from-marble-light to-white">
